@@ -17,8 +17,7 @@ export function FilterBar() {
     const rows = dataset?.rows ?? [];
     return {
       markets: uniq(rows.map((r) => r.market)).filter(Boolean).sort(),
-      years: uniq(rows.map((r) => r.year).filter((y): y is number => y !== null)).sort((a, b) => a - b),
-      months: uniq(rows.map((r) => r.month).filter((y): y is number => y !== null)).sort((a, b) => a - b),
+
       waves: uniq(rows.map((r) => r.wave).filter((y): y is string => !!y)).sort(),
       fuels: uniq(rows.map((r) => r.fuelType)).sort(),
       segments: uniq(rows.map((r) => r.segment)).filter(Boolean).sort(),
@@ -33,8 +32,7 @@ export function FilterBar() {
     <div className="rounded-2xl border border-border bg-card p-4 shadow-[0_6px_18px_rgba(16,24,40,0.06)]">
       <div className="flex flex-wrap items-end gap-3">
         <MultiSelect label="Market" options={opts.markets} value={filters.markets} onChange={(v) => setFilters({ markets: v as string[] })} />
-        <MultiSelect label="Year" options={opts.years} value={filters.years} onChange={(v) => setFilters({ years: v as number[] })} />
-        <MultiSelect label="Month" options={opts.months} value={filters.months} onChange={(v) => setFilters({ months: v as number[] })} />
+
         <MultiSelect label="Wave" options={opts.waves} value={filters.waves} onChange={(v) => setFilters({ waves: v as string[] })} />
         <MultiSelect label="Fuel" options={opts.fuels} value={filters.fuels} onChange={(v) => setFilters({ fuels: v as string[] })} />
         <MultiSelect label="Segment" options={opts.segments} value={filters.segments} onChange={(v) => setFilters({ segments: v as string[] })} />

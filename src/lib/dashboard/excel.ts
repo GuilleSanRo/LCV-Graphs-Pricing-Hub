@@ -29,6 +29,12 @@ export async function parseExcel(file: File): Promise<ParseResult> {
     const json = XLSX.utils.sheet_to_json<Record<string, unknown>>(sheet, { defval: null });
     if (json.length === 0) return { ok: false, error: "Sheet is empty." };
 
+    // Handle column aliases dynamically
+    for (const r of json) {
+      if (r["Channel"] !== undefined && r["Market"] === undefined) r["Market"] = r["Channel"];
+      if (r["Brand"] !== undefined && r["Make"] === undefined) r["Make"] = r["Brand"];
+    }
+
     const headers = new Set(Object.keys(json[0]));
     const missing = REQUIRED_COLUMNS.filter((c) => !headers.has(c));
     if (missing.length) return { ok: false, error: "Missing required columns", missingColumns: missing };

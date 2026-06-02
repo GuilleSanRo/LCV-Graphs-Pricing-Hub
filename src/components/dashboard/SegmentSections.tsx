@@ -38,7 +38,7 @@ function MinAvgMaxBarChart({ min, avg, max, isPercent }: { min: number | null; a
     return Math.max(15, ((val - Math.max(0, baseline)) / (max - Math.max(0, baseline))) * 100);
   };
 
-  const fmt = (v: number) => isPercent ? `${Math.round(v)} %` : Math.round(v).toLocaleString();
+  const fmt = (v: number) => isPercent ? `${Math.round(v * 100)} %` : Math.round(v).toLocaleString();
 
   return (
     <div className="mt-2 flex h-32 items-end gap-[2px] px-2 pt-6 pb-2">

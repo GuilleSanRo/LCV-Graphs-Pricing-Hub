@@ -20,10 +20,12 @@ interface CardModel {
   maxTp: number | null;
   mp: number | null;
   dsc: number | null;
+  minDsc: number | null;
+  maxDsc: number | null;
   eq: number | null;
 }
 
-function MinAvgMaxBarChart({ min, avg, max }: { min: number | null; avg: number | null; max: number | null }) {
+function MinAvgMaxBarChart({ min, avg, max, isPercent }: { min: number | null; avg: number | null; max: number | null; isPercent?: boolean }) {
   if (min === null || avg === null || max === null) {
     return <div className="h-24 rounded bg-muted/20" />;
   }
@@ -36,7 +38,7 @@ function MinAvgMaxBarChart({ min, avg, max }: { min: number | null; avg: number 
     return Math.max(15, ((val - Math.max(0, baseline)) / (max - Math.max(0, baseline))) * 100);
   };
 
-  const fmt = (v: number) => Math.round(v).toLocaleString();
+  const fmt = (v: number) => isPercent ? `${Math.round(v)} %` : Math.round(v).toLocaleString();
 
   return (
     <div className="mt-2 flex h-32 items-end gap-[2px] px-2 pt-6 pb-2">
@@ -84,6 +86,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         const byCard = groupBy(segRows, (r) => `${r.make}__${r.modelMarket}`);
         const cards: CardModel[] = Array.from(byCard.entries()).map(([, rs]) => {
           const tpVals = rs.map((r) => r.transactionPrice).filter((x): x is number => x !== null);
+          const dscVals = rs.map((r) => r.discount).filter((x): x is number => x !== null);
           return {
             make: rs[0].make,
             modelMarket: rs[0].modelMarket,
@@ -95,7 +98,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             minTp: tpVals.length ? Math.min(...tpVals) : null,
             maxTp: tpVals.length ? Math.max(...tpVals) : null,
             mp: mean(rs.map((r) => r.monthlyPayment)),
-            dsc: mean(rs.map((r) => r.discount)),
+            dsc: mean(dscVals),
+            minDsc: dscVals.length ? Math.min(...dscVals) : null,
+            maxDsc: dscVals.length ? Math.max(...dscVals) : null,
             eq: mean(rs.map((r) => r.equipment)),
           };
         });
@@ -112,6 +117,13 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
     if (!reference) return null;
     const refRows = rows.filter((r) => r.make === reference.make && refKey(r, refMode) === reference.key);
     return mean(refRows.map((r) => r.transactionPrice));
+  }, [rows, reference, refMode]);
+
+  // Reference DSC value
+  const refDsc = useMemo(() => {
+    if (!reference) return null;
+    const refRows = rows.filter((r) => r.make === reference.make && refKey(r, refMode) === reference.key);
+    return mean(refRows.map((r) => r.discount));
   }, [rows, reference, refMode]);
 
   return (
@@ -173,6 +185,54 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                   <div className="mt-3 flex items-center justify-between border-t border-border/40 pt-3">
                     <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">vs {reference ? reference.make : "Segment"}</span>
                     <GapBadge gap={gap} base={isBase} cost />
+                  </div>
+
+                  <span
+                    role="button"
+                    tabIndex={-1}
+                    onClick={(e) => { e.stopPropagation(); setOpenCard(c); }}
+                    className="absolute right-3 top-3 cursor-pointer text-[10px] text-muted-foreground opacity-0 transition hover:text-primary group-hover:opacity-100"
+                  >Details →</span>
+                </button>
+              );
+            })}
+          </div>
+
+          <div className="mb-4 mt-8 text-center">
+            <h4 className="text-lg font-bold text-foreground">Discount</h4>
+          </div>
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+            {cards.map((c) => {
+              const isBase = !!reference && reference.make === c.make && reference.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
+              const gap = isBase ? null : gapPct(c.dsc, refDsc);
+              return (
+                <button
+                  key={`${c.make}-${c.modelMarket}-dsc`}
+                  onClick={() => {
+                    const key = refMode === "modelMarket" ? c.modelMarket : c.model;
+                    if (isBase) setReference(null);
+                    else setReference({ make: c.make, key });
+                  }}
+                  onDoubleClick={() => setOpenCard(c)}
+                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-4 text-left shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
+                    isBase ? "border-[#60a5fa] ring-1 ring-[#60a5fa]" : "border-border"
+                  }`}
+                >
+                  <div>
+                    <div className="flex items-start justify-between gap-2">
+                      <div className="min-w-0">
+                        <div className="truncate text-[15px] font-semibold text-foreground">{c.modelMarket}</div>
+                        <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
+                      </div>
+                      {isBase && <Badge className="rounded-md bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[9px] font-bold tracking-wider px-1.5 py-0">DOMESTIC</Badge>}
+                    </div>
+
+                    <MinAvgMaxBarChart min={c.minDsc} avg={c.dsc} max={c.maxDsc} isPercent />
+                  </div>
+
+                  <div className="mt-3 flex items-center justify-between border-t border-border/40 pt-3">
+                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">vs {reference ? reference.make : "Segment"}</span>
+                    <GapBadge gap={gap} base={isBase} cost={false} />
                   </div>
 
                   <span

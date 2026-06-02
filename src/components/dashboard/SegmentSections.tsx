@@ -138,6 +138,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
           </div>
+          <div className="mb-4 mt-2 text-center">
+            <h4 className="text-lg font-bold text-foreground">Transaction Price</h4>
+          </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {cards.map((c) => {
               const isBase = !!reference && reference.make === c.make && reference.key === (refMode === "modelMarket" ? c.modelMarket : c.model);

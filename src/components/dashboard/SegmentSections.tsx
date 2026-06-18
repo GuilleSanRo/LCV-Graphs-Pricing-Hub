@@ -143,15 +143,16 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         </div>
       </div>
 
+      <div className="mb-6 mt-4 text-center">
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Transaction Price</h2>
+      </div>
+
       {sections.map(({ segment, cards, p25, p75 }) => (
-        <div key={segment}>
+        <div key={`tp-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
             <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
-          </div>
-          <div className="mb-4 mt-2 text-center">
-            <h4 className="text-lg font-bold text-foreground">Transaction Price</h4>
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {cards.map((c) => {
@@ -197,9 +198,19 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
               );
             })}
           </div>
+        </div>
+      ))}
 
-          <div className="mb-4 mt-8 text-center">
-            <h4 className="text-lg font-bold text-foreground">Discount</h4>
+      <div className="mb-6 mt-12 text-center">
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Discount</h2>
+      </div>
+
+      {sections.map(({ segment, cards, p25, p75 }) => (
+        <div key={`dsc-${segment}`} className="mb-10">
+          <div className="mb-3 flex items-center gap-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
+            <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
+            <div className="h-px flex-1 bg-border" />
           </div>
           <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
             {cards.map((c) => {

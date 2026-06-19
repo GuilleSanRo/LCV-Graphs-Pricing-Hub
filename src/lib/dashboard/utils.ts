@@ -57,3 +57,32 @@ export function gapColor(gap: number | null, cost: boolean): "pos" | "neg" | "ne
   if (cost) return gap < 0 ? "pos" : "neg";
   return gap > 0 ? "pos" : "neg";
 }
+
+/** 
+ * Sorts model cards by brand (make). 
+ * Stellantis brands (Citroen, Fiat, Opel, Peugeot, Vauxhall) appear first in alphabetical order.
+ * All other brands follow in alphabetical order. 
+ * Within the same brand, models are sorted by modelMarket.
+ */
+export function sortCardsByBrand<T extends { make: string; modelMarket: string }>(cards: T[]): T[] {
+  const stellantisBrands = ["CITROEN", "FIAT", "OPEL", "PEUGEOT", "VAUXHALL", "OPEL/VAUXHALL"];
+  
+  return cards.sort((a, b) => {
+    const makeA = a.make.toUpperCase();
+    const makeB = b.make.toUpperCase();
+
+    const isStellantisA = stellantisBrands.includes(makeA);
+    const isStellantisB = stellantisBrands.includes(makeB);
+
+    // Stellantis brands come before non-Stellantis
+    if (isStellantisA && !isStellantisB) return -1;
+    if (!isStellantisA && isStellantisB) return 1;
+
+    // Both are Stellantis or both are not. Sort alphabetically by make.
+    const makeDiff = makeA.localeCompare(makeB);
+    if (makeDiff !== 0) return makeDiff;
+
+    // If same make, sort by modelMarket
+    return a.modelMarket.localeCompare(b.modelMarket);
+  });
+}

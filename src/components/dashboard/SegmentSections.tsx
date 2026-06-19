@@ -1,6 +1,6 @@
 import { useMemo, useState } from "react";
 import type { Row } from "@/lib/dashboard/types";
-import { mean, groupBy, percentile, fmtEur, fmtPct, gapPct, gapColor, uniq } from "@/lib/dashboard/utils";
+import { mean, groupBy, percentile, fmtEur, fmtPct, gapPct, gapColor, uniq, sortCardsByBrand } from "@/lib/dashboard/utils";
 import { useDashboard, refKey, type RefMode } from "@/lib/dashboard/store";
 import { Badge } from "@/components/ui/badge";
 import { Switch } from "@/components/ui/switch";
@@ -104,7 +104,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             eq: mean(rs.map((r) => r.equipment)),
           };
         });
-        cards.sort((a, b) => a.modelMarket.localeCompare(b.modelMarket));
+        sortCardsByBrand(cards);
         const tpVals = segRows.map((r) => r.transactionPrice).filter((x): x is number => x !== null);
         const p25 = tpVals.length >= 4 ? percentile(tpVals, 0.25) : (tpVals.length ? Math.min(...tpVals) : null);
         const p75 = tpVals.length >= 4 ? percentile(tpVals, 0.75) : (tpVals.length ? Math.max(...tpVals) : null);

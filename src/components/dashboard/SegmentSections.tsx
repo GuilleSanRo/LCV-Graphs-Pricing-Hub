@@ -41,20 +41,20 @@ function MinAvgMaxBarChart({ min, avg, max, isPercent }: { min: number | null; a
   const fmt = (v: number) => isPercent ? `${Math.round(v * 100)} %` : Math.round(v).toLocaleString();
 
   return (
-    <div className="mt-2 flex h-32 items-end gap-[2px] px-2 pt-6 pb-2">
+    <div className="mt-2 flex h-32 items-end gap-[2px] px-1 pt-6 pb-2">
       {/* Min Bar */}
       <div className="flex h-full flex-1 flex-col items-center justify-end">
-        <span className="mb-1 text-[10px] text-muted-foreground/80">{fmt(min)}</span>
+        <span className="mb-1 text-[7px] text-muted-foreground/80">{fmt(min)}</span>
         <div className="w-full border border-destructive bg-background" style={{ height: `${getHeight(min)}%` }} />
       </div>
       {/* Avg Bar (Transaction Price) */}
       <div className="flex h-full flex-1 flex-col items-center justify-end">
-        <span className="mb-1 text-[11px] font-bold text-foreground">{fmt(avg)}</span>
+        <span className="mb-1 text-[8px] font-bold text-foreground">{fmt(avg)}</span>
         <div className="w-full bg-[#4a90e2]" style={{ height: `${getHeight(avg)}%` }} />
       </div>
       {/* Max Bar */}
       <div className="flex h-full flex-1 flex-col items-center justify-end">
-        <span className="mb-1 text-[10px] text-muted-foreground/80">{fmt(max)}</span>
+        <span className="mb-1 text-[7px] text-muted-foreground/80">{fmt(max)}</span>
         <div className="w-full border border-[color:var(--success)] bg-background" style={{ height: `${getHeight(max)}%` }} />
       </div>
     </div>
@@ -62,13 +62,13 @@ function MinAvgMaxBarChart({ min, avg, max, isPercent }: { min: number | null; a
 }
 
 function GapBadge({ gap, base, cost = true }: { gap: number | null; base?: boolean; cost?: boolean }) {
-  if (base) return <Badge variant="secondary" className="rounded-md">Base</Badge>;
+  if (base) return <Badge variant="secondary" className="rounded-sm px-1 py-0 text-[9px]">Base</Badge>;
   const tone = gapColor(gap, cost);
   const cls = tone === "pos"
     ? "bg-[color:var(--success)]/10 text-[color:var(--success)]"
     : tone === "neg" ? "bg-destructive/10 text-destructive" : "bg-muted text-muted-foreground";
   const Icon = tone === "pos" ? ArrowDown : tone === "neg" ? ArrowUp : Minus;
-  return <span className={`inline-flex items-center gap-1 rounded-md px-2 py-0.5 text-xs font-semibold ${cls}`}><Icon className="h-3 w-3" />{fmtPct(gap)}</span>;
+  return <span className={`inline-flex items-center gap-0.5 rounded-sm px-1 py-0 text-[9px] font-semibold ${cls}`}><Icon className="h-2.5 w-2.5" />{fmtPct(gap)}</span>;
 }
 
 export function SegmentSections({ rows }: { rows: Row[] }) {
@@ -154,7 +154,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
               const isBase = !!reference && reference.make === c.make && reference.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
               const gap = isBase ? null : gapPct(c.tp, refTp);
@@ -167,24 +167,22 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                     else setReference({ make: c.make, key });
                   }}
                   onDoubleClick={() => setOpenCard(c)}
-                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-4 text-left shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
+                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
                     isBase ? "border-[#60a5fa] ring-1 ring-[#60a5fa]" : "border-border"
                   }`}
                 >
                   <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="truncate text-[15px] font-semibold text-foreground">{c.modelMarket}</div>
-                        <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
-                      </div>
-                      {isBase && <Badge className="rounded-md bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[9px] font-bold tracking-wider px-1.5 py-0">DOMESTIC</Badge>}
+                    <div className="min-w-0 text-center">
+                      <div className="truncate text-[10px] font-bold text-foreground">{c.modelMarket}</div>
+                      <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
+                      {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
                     </div>
 
                     <MinAvgMaxBarChart min={c.minTp} avg={c.tp} max={c.maxTp} />
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between border-t border-border/40 pt-3">
-                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">vs {reference ? reference.make : "Segment"}</span>
+                  <div className="mt-2 flex flex-col items-center justify-center border-t border-border/40 pt-2 gap-1">
+                    <span className="text-[8px] font-medium uppercase tracking-wide text-muted-foreground">vs {reference ? reference.make : "Segment"}</span>
                     <GapBadge gap={gap} base={isBase} cost />
                   </div>
 
@@ -192,8 +190,8 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                     role="button"
                     tabIndex={-1}
                     onClick={(e) => { e.stopPropagation(); setOpenCard(c); }}
-                    className="absolute right-3 top-3 cursor-pointer text-[10px] text-muted-foreground opacity-0 transition hover:text-primary group-hover:opacity-100"
-                  >Details →</span>
+                    className="absolute right-1 top-1 cursor-pointer text-[8px] text-muted-foreground opacity-0 transition hover:text-primary group-hover:opacity-100"
+                  >Details</span>
                 </button>
               );
             })}
@@ -212,7 +210,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
           </div>
-          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
               const isBase = !!reference && reference.make === c.make && reference.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
               const gap = isBase ? null : gapPct(c.dsc, refDsc);
@@ -225,24 +223,22 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                     else setReference({ make: c.make, key });
                   }}
                   onDoubleClick={() => setOpenCard(c)}
-                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-4 text-left shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
+                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
                     isBase ? "border-[#60a5fa] ring-1 ring-[#60a5fa]" : "border-border"
                   }`}
                 >
                   <div>
-                    <div className="flex items-start justify-between gap-2">
-                      <div className="min-w-0">
-                        <div className="truncate text-[15px] font-semibold text-foreground">{c.modelMarket}</div>
-                        <div className="mt-0.5 text-[11px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
-                      </div>
-                      {isBase && <Badge className="rounded-md bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[9px] font-bold tracking-wider px-1.5 py-0">DOMESTIC</Badge>}
+                    <div className="min-w-0 text-center">
+                      <div className="truncate text-[10px] font-bold text-foreground">{c.modelMarket}</div>
+                      <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
+                      {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
                     </div>
 
                     <MinAvgMaxBarChart min={c.minDsc} avg={c.dsc} max={c.maxDsc} isPercent />
                   </div>
 
-                  <div className="mt-3 flex items-center justify-between border-t border-border/40 pt-3">
-                    <span className="text-[11px] font-medium uppercase tracking-wide text-muted-foreground">vs {reference ? reference.make : "Segment"}</span>
+                  <div className="mt-2 flex flex-col items-center justify-center border-t border-border/40 pt-2 gap-1">
+                    <span className="text-[8px] font-medium uppercase tracking-wide text-muted-foreground">vs {reference ? reference.make : "Segment"}</span>
                     <GapBadge gap={gap} base={isBase} cost={false} />
                   </div>
 
@@ -250,8 +246,8 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                     role="button"
                     tabIndex={-1}
                     onClick={(e) => { e.stopPropagation(); setOpenCard(c); }}
-                    className="absolute right-3 top-3 cursor-pointer text-[10px] text-muted-foreground opacity-0 transition hover:text-primary group-hover:opacity-100"
-                  >Details →</span>
+                    className="absolute right-1 top-1 cursor-pointer text-[8px] text-muted-foreground opacity-0 transition hover:text-primary group-hover:opacity-100"
+                  >Details</span>
                 </button>
               );
             })}

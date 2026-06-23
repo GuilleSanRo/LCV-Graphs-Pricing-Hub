@@ -23,6 +23,7 @@ interface CardModel {
   minDsc: number | null;
   maxDsc: number | null;
   eq: number | null;
+  eqMp: number | null;
 }
 
 function MinAvgMaxBarChart({ min, avg, max, isPercent }: { min: number | null; avg: number | null; max: number | null; isPercent?: boolean }) {
@@ -61,6 +62,54 @@ function MinAvgMaxBarChart({ min, avg, max, isPercent }: { min: number | null; a
   );
 }
 
+function MonthlyPaymentBarChart({ mp, eqMp, maxScale, rank }: { mp: number | null; eqMp: number | null; maxScale: number; rank: number }) {
+  if (mp === null) {
+    return <div className="h-32 rounded bg-muted/20" />;
+  }
+
+  let color = "#0000ff"; // Blue
+  let textColor = "text-white";
+  let badgeBg = "bg-white/30";
+  if (rank === 1) {
+    color = "#d4af37"; // Gold
+    textColor = "text-black";
+    badgeBg = "bg-white/50";
+  } else if (rank === 2) {
+    color = "#c0c0c0"; // Silver
+    textColor = "text-black";
+    badgeBg = "bg-white/50";
+  }
+
+  const scale = maxScale > 0 ? maxScale : Math.max(mp, eqMp || 0, 1);
+  const mpPct = Math.min(100, Math.max(10, (mp / scale) * 100));
+  const eqMpPct = eqMp !== null ? Math.min(100, Math.max(10, (eqMp / scale) * 100)) : null;
+
+  return (
+    <div className="relative mt-2 flex h-32 flex-col items-center justify-end px-2 pt-6 pb-0">
+      {/* Equalized MP Marker */}
+      {eqMp !== null && (
+        <div 
+          className="absolute flex flex-col items-center" 
+          style={{ bottom: `calc(${eqMpPct}% - 4px)` }}
+        >
+          <span className="mb-0.5 text-[8px] font-semibold text-muted-foreground">{Math.round(eqMp)}</span>
+          <div className="h-1.5 w-1.5 border border-muted-foreground/60 rounded-[1px]" />
+        </div>
+      )}
+      
+      {/* MP Bar */}
+      <div 
+        className="w-full relative flex flex-col items-center justify-end rounded-t-sm transition-all" 
+        style={{ height: `${mpPct}%`, backgroundColor: color }}
+      >
+        <div className={`mb-1.5 rounded ${badgeBg} px-1.5 py-0.5 text-[9px] font-bold backdrop-blur-sm ${textColor}`}>
+          {Math.round(mp)}
+        </div>
+      </div>
+    </div>
+  );
+}
+
 function GapBadge({ gap, base, cost = true }: { gap: number | null; base?: boolean; cost?: boolean }) {
   if (base) return <Badge variant="secondary" className="rounded-sm px-1 py-0 text-[9px]">Base</Badge>;
   const tone = gapColor(gap, cost);
@@ -87,6 +136,12 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         const cards: CardModel[] = Array.from(byCard.entries()).map(([, rs]) => {
           const tpVals = rs.map((r) => r.transactionPrice).filter((x): x is number => x !== null);
           const dscVals = rs.map((r) => r.discount).filter((x): x is number => x !== null);
+          const mpVals = rs.map((r) => r.monthlyPayment).filter((x): x is number => x !== null);
+          const eqMpVals = rs.map((r) => {
+            if (r.monthlyPayment === null) return null;
+            return r.monthlyPayment + ((r.deposit || 0) + (r.equipment || 0)) / (r.contractMonths || 60);
+          }).filter((x): x is number => x !== null);
+
           return {
             make: rs[0].make,
             modelMarket: rs[0].modelMarket,
@@ -97,7 +152,8 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             tp: mean(tpVals),
             minTp: tpVals.length ? Math.min(...tpVals) : null,
             maxTp: tpVals.length ? Math.max(...tpVals) : null,
-            mp: mean(rs.map((r) => r.monthlyPayment)),
+            mp: mpVals.length ? mean(mpVals) : null,
+            eqMp: eqMpVals.length ? mean(eqMpVals) : null,
             dsc: mean(dscVals),
             minDsc: dscVals.length ? Math.min(...dscVals) : null,
             maxDsc: dscVals.length ? Math.max(...dscVals) : null,
@@ -105,10 +161,22 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           };
         });
         sortCardsByBrand(cards);
+        
+        // Compute MP ranks for the segment
+        const validMps = Array.from(new Set(cards.map(c => c.mp).filter((x): x is number => x !== null))).sort((a, b) => a - b);
+        const lowestMp = validMps[0] ?? null;
+        const secondLowestMp = validMps[1] ?? null;
+        
+        // Compute max scale for the segment's MP chart
+        const maxEqMpInSegment = Math.max(
+          0,
+          ...cards.map(c => Math.max(c.mp || 0, c.eqMp || 0))
+        );
+
         const tpVals = segRows.map((r) => r.transactionPrice).filter((x): x is number => x !== null);
         const p25 = tpVals.length >= 4 ? percentile(tpVals, 0.25) : (tpVals.length ? Math.min(...tpVals) : null);
         const p75 = tpVals.length >= 4 ? percentile(tpVals, 0.75) : (tpVals.length ? Math.max(...tpVals) : null);
-        return { segment, cards, p25, p75 };
+        return { segment, cards, p25, p75, lowestMp, secondLowestMp, maxEqMpInSegment };
       });
   }, [rows]);
 
@@ -254,6 +322,83 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
         </div>
       ))}
+
+      <div className="mb-6 mt-12 flex flex-col md:flex-row items-center justify-between gap-4">
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Monthly Payment</h2>
+        
+        {/* Legend */}
+        <div className="rounded-md border border-border bg-card p-3 shadow-sm text-[10px] text-muted-foreground min-w-[250px]">
+          <div className="mb-2 font-bold text-foreground text-xs uppercase tracking-wider">Legend</div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-2 w-2 border border-muted-foreground/60 rounded-[1px] shrink-0" />
+            <span>Monthly Payment (excl. cost/serv.) equalized (Deposit & Equipment)</span>
+          </div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-3 w-3 bg-[#0000ff] shrink-0" />
+            <span><span className="font-semibold text-[#0000ff]">Blue:</span> Monthly Payment (excl. cost/serv.)</span>
+          </div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-3 w-3 bg-[#d4af37] shrink-0" />
+            <span><span className="font-semibold text-[#d4af37]">Gold:</span> lowest MP</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 bg-[#c0c0c0] shrink-0" />
+            <span><span className="font-semibold text-[#c0c0c0]">Silver:</span> second lowest MP</span>
+          </div>
+        </div>
+      </div>
+
+      {sections.map(({ segment, cards, lowestMp, secondLowestMp, maxEqMpInSegment }) => (
+        <div key={`mp-${segment}`} className="mb-10">
+          <div className="mb-3 flex items-center gap-3">
+            <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
+            <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
+            <div className="h-px flex-1 bg-border" />
+          </div>
+          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
+            {cards.map((c) => {
+              const isBase = !!reference && reference.make === c.make && reference.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
+              let rank = 3;
+              if (c.mp !== null) {
+                if (c.mp === lowestMp) rank = 1;
+                else if (c.mp === secondLowestMp) rank = 2;
+              }
+              return (
+                <button
+                  key={`${c.make}-${c.modelMarket}-mp`}
+                  onClick={() => {
+                    const key = refMode === "modelMarket" ? c.modelMarket : c.model;
+                    if (isBase) setReference(null);
+                    else setReference({ make: c.make, key });
+                  }}
+                  onDoubleClick={() => setOpenCard(c)}
+                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
+                    isBase ? "border-[#60a5fa] ring-1 ring-[#60a5fa]" : "border-border"
+                  }`}
+                >
+                  <div>
+                    <div className="min-w-0 text-center">
+                      <div className="truncate text-[10px] font-bold text-foreground">{c.modelMarket}</div>
+                      <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
+                      {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
+                    </div>
+
+                    <MonthlyPaymentBarChart mp={c.mp} eqMp={c.eqMp} maxScale={maxEqMpInSegment * 1.15} rank={rank} />
+                  </div>
+
+                  <span
+                    role="button"
+                    tabIndex={-1}
+                    onClick={(e) => { e.stopPropagation(); setOpenCard(c); }}
+                    className="absolute right-1 top-1 cursor-pointer text-[8px] text-muted-foreground opacity-0 transition hover:text-primary group-hover:opacity-100"
+                  >Details</span>
+                </button>
+              );
+            })}
+          </div>
+        </div>
+      ))}
+
 
       <Sheet open={!!openCard} onOpenChange={(o) => !o && setOpenCard(null)}>
         <SheetContent className="w-full sm:max-w-lg">

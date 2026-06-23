@@ -323,29 +323,8 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         </div>
       ))}
 
-      <div className="mb-6 mt-12 flex flex-col md:flex-row items-center justify-between gap-4">
+      <div className="mb-6 mt-12 text-center">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Monthly Payment</h2>
-        
-        {/* Legend */}
-        <div className="rounded-md border border-border bg-card p-3 shadow-sm text-[10px] text-muted-foreground min-w-[250px]">
-          <div className="mb-2 font-bold text-foreground text-xs uppercase tracking-wider">Legend</div>
-          <div className="flex items-center gap-2 mb-2">
-            <div className="h-2 w-2 border border-muted-foreground/60 rounded-[1px] shrink-0" />
-            <span>Monthly Payment (excl. cost/serv.) equalized (Deposit & Equipment)</span>
-          </div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-3 w-3 bg-[#0000ff] shrink-0" />
-            <span><span className="font-semibold text-[#0000ff]">Blue:</span> Monthly Payment (excl. cost/serv.)</span>
-          </div>
-          <div className="flex items-center gap-2 mb-1">
-            <div className="h-3 w-3 bg-[#d4af37] shrink-0" />
-            <span><span className="font-semibold text-[#d4af37]">Gold:</span> lowest MP</span>
-          </div>
-          <div className="flex items-center gap-2">
-            <div className="h-3 w-3 bg-[#c0c0c0] shrink-0" />
-            <span><span className="font-semibold text-[#c0c0c0]">Silver:</span> second lowest MP</span>
-          </div>
-        </div>
       </div>
 
       {sections.map(({ segment, cards, lowestMp, secondLowestMp, maxEqMpInSegment }) => (
@@ -398,6 +377,29 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
         </div>
       ))}
+
+      <div className="mb-10 flex justify-end">
+        {/* Legend */}
+        <div className="rounded-md border border-border bg-card p-3 shadow-sm text-[10px] text-muted-foreground min-w-[250px]">
+          <div className="mb-2 font-bold text-foreground text-xs uppercase tracking-wider">Legend</div>
+          <div className="flex items-center gap-2 mb-2">
+            <div className="h-2 w-2 border border-muted-foreground/60 rounded-[1px] shrink-0" />
+            <span>Monthly Payment (excl. cost/serv.) equalized (Deposit & Equipment)</span>
+          </div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-3 w-3 bg-[#0000ff] shrink-0" />
+            <span><span className="font-semibold text-[#0000ff]">Blue:</span> Monthly Payment (excl. cost/serv.)</span>
+          </div>
+          <div className="flex items-center gap-2 mb-1">
+            <div className="h-3 w-3 bg-[#d4af37] shrink-0" />
+            <span><span className="font-semibold text-[#d4af37]">Gold:</span> lowest MP</span>
+          </div>
+          <div className="flex items-center gap-2">
+            <div className="h-3 w-3 bg-[#c0c0c0] shrink-0" />
+            <span><span className="font-semibold text-[#c0c0c0]">Silver:</span> second lowest MP</span>
+          </div>
+        </div>
+      </div>
 
 
       <Sheet open={!!openCard} onOpenChange={(o) => !o && setOpenCard(null)}>

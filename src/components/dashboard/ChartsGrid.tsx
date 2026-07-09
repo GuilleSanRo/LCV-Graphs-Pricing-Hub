@@ -27,22 +27,10 @@ export function ChartsGrid({ rows }: { rows: Row[] }) {
   const tpByMake = byKey(rows, (r) => r.make, (r) => r.transactionPrice);
   const mpByMake = byKey(rows, (r) => r.make, (r) => r.monthlyPayment);
   const dscByMake = byKey(rows, (r) => r.make, (r) => r.discount);
-  const segOverview = byKey(rows, (r) => r.segment, (r) => r.transactionPrice);
 
   const evolution = Array.from(groupBy(rows.filter((r) => r.wave), (r) => r.wave as string).entries())
     .map(([wave, rs]) => ({ wave, tp: mean(rs.map((r) => r.transactionPrice)) ?? 0 }))
     .sort((a, b) => a.wave.localeCompare(b.wave));
-
-  const fuels = ["BEV", "ICE"];
-  const fuelData = fuels.map((f) => {
-    const rs = rows.filter((r) => r.fuelType === f);
-    return {
-      name: f,
-      "Transaction Price": mean(rs.map((r) => r.transactionPrice)) ?? 0,
-      "Monthly Payment": mean(rs.map((r) => r.monthlyPayment)) ?? 0,
-      "Discount %": mean(rs.map((r) => r.discount)) ?? 0,
-    };
-  });
 
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
@@ -57,12 +45,6 @@ export function ChartsGrid({ rows }: { rows: Row[] }) {
       </Card>
       <Card title="Price Evolution Over Time" sub="avg Transaction Price by Wave" empty={evolution.length < 2}>
         <ResponsiveContainer><LineChart data={evolution}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="wave" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} tickFormatter={(v) => fmtEur(v)} /><RTooltip formatter={(v: number) => fmtEur(v)} /><Line type="monotone" dataKey="tp" stroke={fillVar} strokeWidth={2} dot={{ r: 4 }} /></LineChart></ResponsiveContainer>
-      </Card>
-      <Card title="BEV vs ICE Comparison" sub="avg metrics" empty={!fuelData.some((d) => d["Transaction Price"])}>
-        <ResponsiveContainer><BarChart data={fuelData}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} /><RTooltip /><Legend wrapperStyle={{ fontSize: 11 }} /><Bar dataKey="Transaction Price" fill="var(--primary)" radius={[6, 6, 0, 0]} /><Bar dataKey="Monthly Payment" fill="var(--chart-2)" radius={[6, 6, 0, 0]} /><Bar dataKey="Discount %" fill="var(--chart-4)" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
-      </Card>
-      <Card title="Segment Overview" sub="avg Transaction Price" empty={!segOverview.length}>
-        <ResponsiveContainer><BarChart data={segOverview}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} tickFormatter={(v) => fmtEur(v)} /><RTooltip formatter={(v: number) => fmtEur(v)} /><Bar dataKey="value" fill="var(--chart-3)" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
       </Card>
     </div>
   );

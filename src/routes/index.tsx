@@ -28,6 +28,7 @@ function Index() {
   const dataset = useDashboard((s) => s.dataset);
   const filters = useDashboard((s) => s.filters);
   const filteredRows = useMemo(() => (dataset ? applyFilters(dataset.rows, filters) : []), [dataset, filters]);
+  const evolutionRows = useMemo(() => (dataset ? applyFilters(dataset.rows, { ...filters, waves: [] }) : []), [dataset, filters]);
 
   return (
     <div className="min-h-screen bg-background">
@@ -56,7 +57,7 @@ function Index() {
                 <div className="mb-6 mt-12 text-center">
                   <h2 className="text-2xl font-bold text-foreground tracking-tight">Summary</h2>
                 </div>
-                <ChartsGrid rows={filteredRows} />
+                <ChartsGrid rows={filteredRows} evolutionRows={evolutionRows} />
                 <DataTable rows={filteredRows} />
               </>
             )}

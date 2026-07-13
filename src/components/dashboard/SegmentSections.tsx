@@ -139,7 +139,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           const mpVals = rs.map((r) => r.monthlyPayment).filter((x): x is number => x !== null);
           const eqMpVals = rs.map((r) => {
             if (r.monthlyPayment === null) return null;
-            return r.monthlyPayment + ((r.deposit || 0) + (r.equipment || 0)) / (r.contractMonths || 60);
+            return r.monthlyPayment + ((r.deposit || 0) - (r.equipment || 0)) / (r.contractMonths || 60);
           }).filter((x): x is number => x !== null);
 
           return {

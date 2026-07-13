@@ -1,6 +1,6 @@
 import type { Row } from "@/lib/dashboard/types";
 import { mean, groupBy, fmtEur } from "@/lib/dashboard/utils";
-import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, Legend, Line, LineChart, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis, Cell } from "recharts";
 
 function Card({ title, sub, children, empty }: { title: string; sub?: string; children: React.ReactNode; empty?: boolean }) {
   return (
@@ -35,13 +35,13 @@ export function ChartsGrid({ rows }: { rows: Row[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
       <Card title="Transaction Price by Make" sub="avg" empty={!tpByMake.length}>
-        <ResponsiveContainer><BarChart data={tpByMake}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} tickFormatter={(v) => fmtEur(v)} /><RTooltip formatter={(v: number) => fmtEur(v)} /><Bar dataKey="value" fill={fillVar} radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
+        <ResponsiveContainer><BarChart data={tpByMake}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} tickFormatter={(v) => fmtEur(v)} /><RTooltip formatter={(v: number) => fmtEur(v)} /><Bar dataKey="value" radius={[6, 6, 0, 0]}>{tpByMake.map((entry, index) => <Cell key={`cell-${index}`} fill={index === tpByMake.length - 1 ? "#d4af37" : index === tpByMake.length - 2 ? "#c0c0c0" : "#0000ff"} />)}</Bar></BarChart></ResponsiveContainer>
       </Card>
       <Card title="Monthly Payment by Make" sub="avg" empty={!mpByMake.length}>
-        <ResponsiveContainer><BarChart data={mpByMake}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} tickFormatter={(v) => fmtEur(v)} /><RTooltip formatter={(v: number) => fmtEur(v)} /><Bar dataKey="value" fill="var(--chart-2)" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
+        <ResponsiveContainer><BarChart data={mpByMake}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} tickFormatter={(v) => fmtEur(v)} /><RTooltip formatter={(v: number) => fmtEur(v)} /><Bar dataKey="value" radius={[6, 6, 0, 0]}>{mpByMake.map((entry, index) => <Cell key={`cell-${index}`} fill={index === mpByMake.length - 1 ? "#d4af37" : index === mpByMake.length - 2 ? "#c0c0c0" : "#0000ff"} />)}</Bar></BarChart></ResponsiveContainer>
       </Card>
       <Card title="Discount by Make" sub="avg %" empty={!dscByMake.length}>
-        <ResponsiveContainer><BarChart data={dscByMake}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={50} tickFormatter={(v) => `${v.toFixed(0)}%`} /><RTooltip formatter={(v: number) => `${v.toFixed(2)}%`} /><Bar dataKey="value" fill="var(--chart-4)" radius={[6, 6, 0, 0]} /></BarChart></ResponsiveContainer>
+        <ResponsiveContainer><BarChart data={dscByMake}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={50} tickFormatter={(v) => `${v.toFixed(0)}%`} /><RTooltip formatter={(v: number) => `${v.toFixed(2)}%`} /><Bar dataKey="value" radius={[6, 6, 0, 0]}>{dscByMake.map((entry, index) => <Cell key={`cell-${index}`} fill={index === 0 ? "#d4af37" : index === 1 ? "#c0c0c0" : "#0000ff"} />)}</Bar></BarChart></ResponsiveContainer>
       </Card>
       <Card title="Price Evolution Over Time" sub="avg Transaction Price by Wave" empty={evolution.length < 2}>
         <ResponsiveContainer><LineChart data={evolution}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="wave" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} tickFormatter={(v) => fmtEur(v)} /><RTooltip formatter={(v: number) => fmtEur(v)} /><Line type="monotone" dataKey="tp" stroke={fillVar} strokeWidth={2} dot={{ r: 4 }} /></LineChart></ResponsiveContainer>

@@ -60,7 +60,7 @@ export function DataTable({ rows }: { rows: Row[] }) {
     onSortingChange: setSorting,
     onGlobalFilterChange: setGlobalFilter,
     onColumnVisibilityChange: setColVis,
-    initialState: { pagination: { pageSize: 25 } },
+    initialState: { pagination: { pageSize: 10 } },
     getCoreRowModel: getCoreRowModel(),
     getSortedRowModel: getSortedRowModel(),
     getFilteredRowModel: getFilteredRowModel(),

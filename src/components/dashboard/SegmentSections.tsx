@@ -67,7 +67,7 @@ function MonthlyPaymentBarChart({ mp, eqMp, maxScale, rank }: { mp: number | nul
     return <div className="h-32 rounded bg-muted/20" />;
   }
 
-  let color = "#0000ff"; // Blue
+  let color = "#4a90e2"; // Blue
   let textColor = "text-white";
   let badgeBg = "bg-white/30";
   if (rank === 1) {
@@ -384,11 +384,11 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           <div className="mb-2 font-bold text-foreground text-xs uppercase tracking-wider">Legend</div>
           <div className="flex items-center gap-2 mb-2">
             <div className="h-2 w-2 border border-muted-foreground/60 rounded-[1px] shrink-0" />
-            <span>Monthly Payment (excl. cost/serv.) equalized (+Deposit & -Equipment)</span>
+            <span>Monthly Payment (excl. cost/serv.) equalized (Deposit & Equipment)</span>
           </div>
           <div className="flex items-center gap-2 mb-1">
-            <div className="h-3 w-3 bg-[#0000ff] shrink-0" />
-            <span><span className="font-semibold text-[#0000ff]">Blue:</span> Monthly Payment (excl. cost/serv.)</span>
+            <div className="h-3 w-3 bg-[#4a90e2] shrink-0" />
+            <span><span className="font-semibold text-[#4a90e2]">Blue:</span> Monthly Payment (excl. cost/serv.)</span>
           </div>
           <div className="flex items-center gap-2 mb-1">
             <div className="h-3 w-3 bg-[#d4af37] shrink-0" />

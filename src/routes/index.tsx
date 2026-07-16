@@ -31,9 +31,9 @@ function Index() {
   const evolutionRows = useMemo(() => (dataset ? applyFilters(dataset.rows, { ...filters, waves: [] }) : []), [dataset, filters]);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className="flex min-h-screen flex-col bg-background">
       <Header />
-      <main className="mx-auto max-w-[1400px] space-y-5 px-6 py-6">
+      <main className="mx-auto w-full max-w-[1400px] flex-grow space-y-5 px-6 py-6">
         <Uploader />
         {!dataset ? (
           <div className="rounded-2xl border border-dashed border-border bg-card p-16 text-center shadow-[0_6px_18px_rgba(16,24,40,0.06)]">
@@ -65,6 +65,17 @@ function Index() {
           </>
         )}
       </main>
+      <footer className="mt-auto w-full px-4 py-6 text-xs text-muted-foreground relative">
+        <div className="mx-auto flex w-full max-w-[1400px] flex-col items-center gap-2 md:flex-row">
+          <div className="flex items-center gap-1 z-10">
+            <span className="text-green-500">🛡️</span>
+            <span>Files are processed locally in your browser. Nothing is uploaded online.</span>
+          </div>
+          <div className="text-center md:absolute md:left-1/2 md:-translate-x-1/2 z-0">
+            © 2026 LCV Graphs Pricing Hub for Stellantis ProOne - by Guillermo Santiago
+          </div>
+        </div>
+      </footer>
       <Toaster position="top-right" richColors />
     </div>
   );

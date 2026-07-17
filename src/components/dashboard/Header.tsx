@@ -22,7 +22,7 @@ export function Header() {
             <img src="/logo.png" alt="Logo" className="h-full w-full object-cover" />
           </div>
         */}
-        <div className="flex h-9 w-9 items-center justify-center overflow-hidden">
+        <div className="flex h-11 w-11 items-center justify-center overflow-hidden">
           <img src="/logo.png" alt="Logo" className="h-full w-full object-contain" />
         </div>
         <div className="mr-4">

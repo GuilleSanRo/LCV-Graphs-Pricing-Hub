@@ -16,8 +16,14 @@ export function Header() {
   return (
     <header className="sticky top-0 z-40 border-b border-border bg-background/80 backdrop-blur supports-[backdrop-filter]:bg-background/70">
       <div className="mx-auto flex max-w-[1400px] flex-wrap items-center gap-3 px-6 py-3">
-        <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm overflow-hidden">
-          <img src="/logo.png" alt="Logo" className="h-full w-full object-cover" />
+        {/* 
+          Backup of the blue rounded background version (in case you want to revert):
+          <div className="flex h-9 w-9 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-sm overflow-hidden">
+            <img src="/logo.png" alt="Logo" className="h-full w-full object-cover" />
+          </div>
+        */}
+        <div className="flex h-9 w-9 items-center justify-center overflow-hidden">
+          <img src="/logo.png" alt="Logo" className="h-full w-full object-contain" />
         </div>
         <div className="mr-4">
           <div className="text-base font-bold leading-tight text-foreground">Stellantis ProOne LCV Graphs</div>

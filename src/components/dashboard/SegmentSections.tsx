@@ -7,6 +7,9 @@ import { Switch } from "@/components/ui/switch";
 import { ArrowDown, ArrowUp, Minus, Target } from "lucide-react";
 import { Sheet, SheetContent, SheetHeader, SheetTitle, SheetDescription } from "@/components/ui/sheet";
 import { LineChart, Line, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis } from "recharts";
+import { Button } from "@/components/ui/button";
+import { Download } from "lucide-react";
+import { exportToPdf } from "@/lib/dashboard/pdfExport";
 
 interface CardModel {
   make: string;
@@ -125,7 +128,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
   const setReference = useDashboard((s) => s.setReference);
   const refMode = useDashboard((s) => s.refMode);
   const setRefMode = useDashboard((s) => s.setRefMode);
+  const filters = useDashboard((s) => s.filters);
   const [openCard, setOpenCard] = useState<CardModel | null>(null);
+  const [isExporting, setIsExporting] = useState(false);
 
   const sections = useMemo(() => {
     const bySegment = groupBy(rows, (r) => r.segment);
@@ -211,6 +216,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         </div>
       </div>
 
+      <div id="section-tp">
       <div className="mb-6 mt-4 text-center">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Transaction Price</h2>
       </div>
@@ -266,7 +272,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
         </div>
       ))}
+      </div>
 
+      <div id="section-dsc">
       <div className="mb-6 mt-12 text-center">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Discount</h2>
       </div>
@@ -322,7 +330,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
         </div>
       ))}
+      </div>
 
+      <div id="section-mp">
       <div className="mb-6 mt-12 text-center">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Monthly Payment</h2>
       </div>
@@ -377,8 +387,23 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
         </div>
       ))}
+      </div>
 
-      <div className="mb-10 flex justify-end">
+      <div className="mb-10 flex justify-between items-start">
+        {/* PDF Export Button */}
+        <div>
+          <Button size="sm" onClick={async () => {
+            setIsExporting(true);
+            try {
+              await exportToPdf(filters);
+            } finally {
+              setIsExporting(false);
+            }
+          }} disabled={isExporting}>
+            <Download className="mr-1.5 h-3.5 w-3.5" /> {isExporting ? "GENERATING..." : "PDF"}
+          </Button>
+        </div>
+
         {/* Legend */}
         <div className="rounded-md border border-border bg-card p-3 shadow-sm text-[10px] text-muted-foreground min-w-[250px]">
           <div className="mb-2 font-bold text-foreground text-xs uppercase tracking-wider">Legend</div>

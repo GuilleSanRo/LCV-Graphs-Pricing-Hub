@@ -54,10 +54,12 @@ function Index() {
               <>
                 <KpiCards rows={filteredRows} />
                 <SegmentSections rows={filteredRows} />
-                <div className="mb-6 mt-12 text-center">
-                  <h2 className="text-2xl font-bold text-foreground tracking-tight">Summary</h2>
+                <div id="section-summary">
+                  <div className="mb-6 mt-12 text-center">
+                    <h2 className="text-2xl font-bold text-foreground tracking-tight">Summary</h2>
+                  </div>
+                  <ChartsGrid rows={filteredRows} evolutionRows={evolutionRows} />
                 </div>
-                <ChartsGrid rows={filteredRows} evolutionRows={evolutionRows} />
                 <DataTable rows={filteredRows} />
               </>
             )}

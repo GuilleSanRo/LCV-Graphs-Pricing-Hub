@@ -3,7 +3,8 @@ import type { Filters } from "./store";
 export async function exportToPdf(filters: Filters) {
   try {
     // 1. Ensure scripts are loaded dynamically to avoid bundle issues
-    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js", "html2canvas");
+    // Using html-to-image instead of html2canvas because html2canvas crashes on modern CSS colors like lab() and oklch()
+    await loadScript("https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js", "htmlToImage");
     await loadScript("https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js", "jspdf");
 
     // 2. Prepare filter text
@@ -29,16 +30,13 @@ export async function exportToPdf(filters: Filters) {
       if (!el) continue;
 
       // @ts-ignore
-      const html2c = window.html2canvas;
-      if (!html2c) throw new Error("html2canvas failed to load properly.");
+      const htmlToImage = window.htmlToImage;
+      if (!htmlToImage) throw new Error("html-to-image failed to load properly.");
 
-      const canvas = await html2c(el, { 
-        scale: 2, 
-        useCORS: true,
+      const imgData = await htmlToImage.toPng(el, { 
+        pixelRatio: 2, 
         backgroundColor: '#ffffff'
       });
-      
-      const imgData = canvas.toDataURL("image/png");
 
       const pdfWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
       const pdfHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
@@ -46,7 +44,17 @@ export async function exportToPdf(filters: Filters) {
       // Calculate aspect ratio keeping width to 90% of page
       const margin = 20;
       const imgWidth = pdfWidth - (margin * 2);
-      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+      
+      // We need to calculate height based on the image's original dimensions
+      // Since toPng returns a base64 string, we can load it into an Image object to get dimensions
+      const img = new Image();
+      img.src = imgData;
+      await new Promise((resolve, reject) => {
+        img.onload = resolve;
+        img.onerror = reject;
+      });
+      
+      const imgHeight = (img.height * imgWidth) / img.width;
 
       if (pageAdded) doc.addPage();
       

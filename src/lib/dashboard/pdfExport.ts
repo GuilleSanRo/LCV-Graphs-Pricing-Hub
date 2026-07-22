@@ -22,6 +22,8 @@ export async function exportToPdf(filters: Filters) {
     const jsPDF = window.jspdf?.jsPDF || window.jsPDF;
     if (!jsPDF) throw new Error("jsPDF failed to load properly.");
     const doc = new jsPDF("l", "pt", "a4"); // Landscape for wide charts
+    const pdfWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
+    const pdfHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
 
     let pageAdded = false;
 
@@ -38,12 +40,10 @@ export async function exportToPdf(filters: Filters) {
         backgroundColor: '#ffffff'
       });
 
-      const pdfWidth = doc.internal.pageSize.width || doc.internal.pageSize.getWidth();
-      const pdfHeight = doc.internal.pageSize.height || doc.internal.pageSize.getHeight();
-      
       // Calculate aspect ratio keeping width to 90% of page
       const margin = 20;
-      const imgWidth = pdfWidth - (margin * 2);
+      const maxImgWidth = pdfWidth - (margin * 2);
+      const maxImgHeight = pdfHeight - margin - 45; // Leave space for footer line and margins
       
       // We need to calculate height based on the image's original dimensions
       // Since toPng returns a base64 string, we can load it into an Image object to get dimensions
@@ -54,11 +54,21 @@ export async function exportToPdf(filters: Filters) {
         img.onerror = reject;
       });
       
-      const imgHeight = (img.height * imgWidth) / img.width;
+      let imgWidth = maxImgWidth;
+      let imgHeight = (img.height * imgWidth) / img.width;
+
+      // If the image is too tall to fit the page, scale it down to fit the height
+      if (imgHeight > maxImgHeight) {
+        imgHeight = maxImgHeight;
+        imgWidth = (img.width * imgHeight) / img.height;
+      }
+
+      // Center the image horizontally on the page
+      const xOffset = margin + (maxImgWidth - imgWidth) / 2;
 
       if (pageAdded) doc.addPage();
       
-      doc.addImage(imgData, "PNG", margin, margin, imgWidth, imgHeight);
+      doc.addImage(imgData, "PNG", xOffset, margin, imgWidth, imgHeight);
 
       // Add filter footer line
       doc.setDrawColor(200, 200, 200);

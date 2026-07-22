@@ -35,12 +35,20 @@ export async function exportToPdf(filters: Filters) {
       const htmlToImage = window.htmlToImage;
       if (!htmlToImage) throw new Error("html-to-image failed to load properly.");
 
+      const width = el.offsetWidth;
+      const height = el.offsetHeight;
+      
       const imgData = await htmlToImage.toPng(el, { 
         pixelRatio: 2, 
         backgroundColor: '#ffffff',
+        width: width,
+        height: height + 60, // Add safety margin to prevent any text clipping
         style: {
-          paddingBottom: '60px', // Prevents bottom clipping on grids/cards
-          margin: '0'
+          width: `${width}px`,
+          height: `${height + 60}px`,
+          margin: '0',
+          padding: '0',
+          paddingBottom: '60px'
         }
       });
 

@@ -37,7 +37,11 @@ export async function exportToPdf(filters: Filters) {
 
       const imgData = await htmlToImage.toPng(el, { 
         pixelRatio: 2, 
-        backgroundColor: '#ffffff'
+        backgroundColor: '#ffffff',
+        style: {
+          paddingBottom: '60px', // Prevents bottom clipping on grids/cards
+          margin: '0'
+        }
       });
 
       // Calculate aspect ratio keeping width to 90% of page

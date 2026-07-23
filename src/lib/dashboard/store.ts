@@ -21,12 +21,12 @@ interface State {
   dataset: ParsedDataset | null;
   filters: Filters;
   refMode: RefMode;
-  reference: Reference | null;
+  references: Record<string, Reference | null>;
   setDataset: (d: ParsedDataset | null) => void;
   setFilters: (patch: Partial<Filters>) => void;
   resetFilters: () => void;
   setRefMode: (m: RefMode) => void;
-  setReference: (r: Reference | null) => void;
+  setReference: (segment: string, r: Reference | null) => void;
 }
 
 export const emptyFilters: Filters = {
@@ -37,12 +37,17 @@ export const useDashboard = create<State>((set) => ({
   dataset: null,
   filters: emptyFilters,
   refMode: "modelMarket",
-  reference: null,
-  setDataset: (d) => set({ dataset: d, filters: emptyFilters, reference: null }),
+  references: {},
+  setDataset: (d) => set({ dataset: d, filters: emptyFilters, references: {} }),
   setFilters: (patch) => set((s) => ({ filters: { ...s.filters, ...patch } })),
   resetFilters: () => set({ filters: emptyFilters }),
-  setRefMode: (m) => set({ refMode: m, reference: null }),
-  setReference: (r) => set({ reference: r }),
+  setRefMode: (m) => set({ refMode: m, references: {} }),
+  setReference: (segment, r) => set((s) => ({
+    references: {
+      ...s.references,
+      [segment]: r
+    }
+  })),
 }));
 
 export function applyFilters(rows: Row[], f: Filters): Row[] {

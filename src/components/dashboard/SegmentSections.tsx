@@ -124,7 +124,7 @@ function GapBadge({ gap, base, cost = true }: { gap: number | null; base?: boole
 }
 
 export function SegmentSections({ rows }: { rows: Row[] }) {
-  const reference = useDashboard((s) => s.reference);
+  const references = useDashboard((s) => s.references);
   const setReference = useDashboard((s) => s.setReference);
   const refMode = useDashboard((s) => s.refMode);
   const setRefMode = useDashboard((s) => s.setRefMode);
@@ -181,23 +181,17 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         const tpVals = segRows.map((r) => r.transactionPrice).filter((x): x is number => x !== null);
         const p25 = tpVals.length >= 4 ? percentile(tpVals, 0.25) : (tpVals.length ? Math.min(...tpVals) : null);
         const p75 = tpVals.length >= 4 ? percentile(tpVals, 0.75) : (tpVals.length ? Math.max(...tpVals) : null);
-        return { segment, cards, p25, p75, lowestMp, secondLowestMp, maxEqMpInSegment };
+
+        const segmentRef = references[segment] || null;
+        const refRows = segmentRef 
+          ? segRows.filter((r) => r.make === segmentRef.make && refKey(r, refMode) === segmentRef.key)
+          : [];
+        const refTpVal = refRows.length ? mean(refRows.map((r) => r.transactionPrice)) : null;
+        const refDscVal = refRows.length ? mean(refRows.map((r) => r.discount)) : null;
+
+        return { segment, cards, p25, p75, lowestMp, secondLowestMp, maxEqMpInSegment, segmentRef, refTpVal, refDscVal };
       });
-  }, [rows]);
-
-  // Reference TP value (from filtered rows)
-  const refTp = useMemo(() => {
-    if (!reference) return null;
-    const refRows = rows.filter((r) => r.make === reference.make && refKey(r, refMode) === reference.key);
-    return mean(refRows.map((r) => r.transactionPrice));
-  }, [rows, reference, refMode]);
-
-  // Reference DSC value
-  const refDsc = useMemo(() => {
-    if (!reference) return null;
-    const refRows = rows.filter((r) => r.make === reference.make && refKey(r, refMode) === reference.key);
-    return mean(refRows.map((r) => r.discount));
-  }, [rows, reference, refMode]);
+  }, [rows, references, refMode]);
 
   return (
     <div className="space-y-6">
@@ -221,7 +215,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Transaction Price</h2>
       </div>
 
-      {sections.map(({ segment, cards, p25, p75 }) => (
+      {sections.map(({ segment, cards, segmentRef, refTpVal }) => (
         <div key={`tp-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
@@ -230,15 +224,15 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
-              const isBase = !!reference && reference.make === c.make && reference.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
-              const gap = isBase ? null : gapPct(c.tp, refTp);
+              const isBase = !!segmentRef && segmentRef.make === c.make && segmentRef.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
+              const gap = isBase ? null : gapPct(c.tp, refTpVal);
               return (
                 <button
                   key={`${c.make}-${c.modelMarket}`}
                   onClick={() => {
                     const key = refMode === "modelMarket" ? c.modelMarket : c.model;
-                    if (isBase) setReference(null);
-                    else setReference({ make: c.make, key });
+                    if (isBase) setReference(segment, null);
+                    else setReference(segment, { make: c.make, key });
                   }}
                   onDoubleClick={() => setOpenCard(c)}
                   className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
@@ -256,7 +250,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                   </div>
 
                   <div className="mt-2 flex flex-col items-center justify-center border-t border-border/40 pt-2 gap-1">
-                    <span className="text-[8px] font-medium uppercase tracking-wide text-muted-foreground">vs {reference ? reference.make : "Segment"}</span>
+                    <span className="text-[8px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {segmentRef ? `vs ${segmentRef.key}` : "vs Model Selected"}
+                    </span>
                     <GapBadge gap={gap} base={isBase} cost />
                   </div>
 
@@ -279,7 +275,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Discount</h2>
       </div>
 
-      {sections.map(({ segment, cards, p25, p75 }) => (
+      {sections.map(({ segment, cards, segmentRef, refDscVal }) => (
         <div key={`dsc-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
@@ -288,15 +284,15 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
-              const isBase = !!reference && reference.make === c.make && reference.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
-              const gap = isBase ? null : gapPct(c.dsc, refDsc);
+              const isBase = !!segmentRef && segmentRef.make === c.make && segmentRef.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
+              const gap = isBase ? null : gapPct(c.dsc, refDscVal);
               return (
                 <button
                   key={`${c.make}-${c.modelMarket}-dsc`}
                   onClick={() => {
                     const key = refMode === "modelMarket" ? c.modelMarket : c.model;
-                    if (isBase) setReference(null);
-                    else setReference({ make: c.make, key });
+                    if (isBase) setReference(segment, null);
+                    else setReference(segment, { make: c.make, key });
                   }}
                   onDoubleClick={() => setOpenCard(c)}
                   className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
@@ -314,7 +310,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                   </div>
 
                   <div className="mt-2 flex flex-col items-center justify-center border-t border-border/40 pt-2 gap-1">
-                    <span className="text-[8px] font-medium uppercase tracking-wide text-muted-foreground">vs {reference ? reference.make : "Segment"}</span>
+                    <span className="text-[8px] font-medium uppercase tracking-wide text-muted-foreground">
+                      {segmentRef ? `vs ${segmentRef.key}` : "vs Model Selected"}
+                    </span>
                     <GapBadge gap={gap} base={isBase} cost={false} />
                   </div>
 
@@ -337,7 +335,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Monthly Payment</h2>
       </div>
 
-      {sections.map(({ segment, cards, lowestMp, secondLowestMp, maxEqMpInSegment }) => (
+      {sections.map(({ segment, cards, lowestMp, secondLowestMp, maxEqMpInSegment, segmentRef }) => (
         <div key={`mp-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
@@ -346,7 +344,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
-              const isBase = !!reference && reference.make === c.make && reference.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
+              const isBase = !!segmentRef && segmentRef.make === c.make && segmentRef.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
               let rank = 3;
               if (c.mp !== null) {
                 if (c.mp === lowestMp) rank = 1;
@@ -357,8 +355,8 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                   key={`${c.make}-${c.modelMarket}-mp`}
                   onClick={() => {
                     const key = refMode === "modelMarket" ? c.modelMarket : c.model;
-                    if (isBase) setReference(null);
-                    else setReference({ make: c.make, key });
+                    if (isBase) setReference(segment, null);
+                    else setReference(segment, { make: c.make, key });
                   }}
                   onDoubleClick={() => setOpenCard(c)}
                   className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${

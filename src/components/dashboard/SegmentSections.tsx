@@ -275,7 +275,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Discount</h2>
       </div>
 
-      {sections.map(({ segment, cards, segmentRef, refDscVal }) => (
+      {sections.map(({ segment, cards }) => (
         <div key={`dsc-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
@@ -284,36 +284,19 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
-              const isBase = !!segmentRef && segmentRef.make === c.make && segmentRef.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
-              const gap = isBase ? null : gapPct(c.dsc, refDscVal);
               return (
                 <button
                   key={`${c.make}-${c.modelMarket}-dsc`}
-                  onClick={() => {
-                    const key = refMode === "modelMarket" ? c.modelMarket : c.model;
-                    if (isBase) setReference(segment, null);
-                    else setReference(segment, { make: c.make, key });
-                  }}
-                  onDoubleClick={() => setOpenCard(c)}
-                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
-                    isBase ? "border-[#60a5fa] ring-1 ring-[#60a5fa]" : "border-border"
-                  }`}
+                  onClick={() => setOpenCard(c)}
+                  className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)]"
                 >
                   <div>
                     <div className="min-w-0 text-center">
                       <div className="truncate text-[10px] font-bold text-foreground">{c.modelMarket}</div>
                       <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
-                      {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
                     </div>
 
                     <MinAvgMaxBarChart min={c.minDsc} avg={c.dsc} max={c.maxDsc} isPercent />
-                  </div>
-
-                  <div className="mt-2 flex flex-col items-center justify-center border-t border-border/40 pt-2 gap-1">
-                    <span className="text-[8px] font-medium uppercase tracking-wide text-muted-foreground">
-                      {segmentRef ? `vs ${segmentRef.key}` : "vs Model Selected"}
-                    </span>
-                    <GapBadge gap={gap} base={isBase} cost={false} />
                   </div>
 
                   <span
@@ -335,7 +318,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Monthly Payment</h2>
       </div>
 
-      {sections.map(({ segment, cards, lowestMp, secondLowestMp, maxEqMpInSegment, segmentRef }) => (
+      {sections.map(({ segment, cards, lowestMp, secondLowestMp, maxEqMpInSegment }) => (
         <div key={`mp-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
@@ -344,7 +327,6 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
-              const isBase = !!segmentRef && segmentRef.make === c.make && segmentRef.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
               let rank = 3;
               if (c.mp !== null) {
                 if (c.mp === lowestMp) rank = 1;
@@ -353,21 +335,13 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
               return (
                 <button
                   key={`${c.make}-${c.modelMarket}-mp`}
-                  onClick={() => {
-                    const key = refMode === "modelMarket" ? c.modelMarket : c.model;
-                    if (isBase) setReference(segment, null);
-                    else setReference(segment, { make: c.make, key });
-                  }}
-                  onDoubleClick={() => setOpenCard(c)}
-                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
-                    isBase ? "border-[#60a5fa] ring-1 ring-[#60a5fa]" : "border-border"
-                  }`}
+                  onClick={() => setOpenCard(c)}
+                  className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)]"
                 >
                   <div>
                     <div className="min-w-0 text-center">
                       <div className="truncate text-[10px] font-bold text-foreground">{c.modelMarket}</div>
                       <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
-                      {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
                     </div>
 
                     <MonthlyPaymentBarChart mp={c.mp} eqMp={c.eqMp} maxScale={maxEqMpInSegment * 1.15} rank={rank} />

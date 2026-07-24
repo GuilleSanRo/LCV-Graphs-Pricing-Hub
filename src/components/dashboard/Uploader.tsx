@@ -75,7 +75,7 @@ export function Uploader() {
           <div>
             <div className="font-semibold">{error}</div>
             {missing && (
-              <div className="mt-1 text-xs">Missing columns: <span className="font-mono">{missing.map(m => m === "Market" ? "Market or Channel" : m === "Make" ? "Make or Brand" : m).join(", ")}</span></div>
+              <div className="mt-1 text-xs">Missing columns: <span className="font-mono">{missing.map(m => m === "Market" ? "Market or Channel" : m === "Make" ? "Make or Brand" : m === "Segment" ? "Segment or/and Label" : m).join(", ")}</span></div>
             )}
           </div>
         </div>
@@ -84,7 +84,7 @@ export function Uploader() {
         <details className="mt-3 text-xs text-muted-foreground">
           <summary className="cursor-pointer select-none">Required columns ({REQUIRED_COLUMNS.length})</summary>
           <div className="mt-2 grid grid-cols-2 gap-1 font-mono md:grid-cols-3">
-            {REQUIRED_COLUMNS.map((c) => <span key={c}>· {c === "Market" ? "Market or Channel" : c === "Make" ? "Make or Brand" : c}</span>)}
+            {REQUIRED_COLUMNS.map((c) => <span key={c}>· {c === "Market" ? "Market or Channel" : c === "Make" ? "Make or Brand" : c === "Segment" ? "Segment or/and Label" : c}</span>)}
           </div>
         </details>
       )}

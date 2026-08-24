@@ -33,7 +33,9 @@ export async function parseExcel(file: File): Promise<ParseResult> {
     for (const r of json) {
       if (r["Channel"] !== undefined && r["Market"] === undefined) r["Market"] = r["Channel"];
       if (r["Brand"] !== undefined && r["Make"] === undefined) r["Make"] = r["Brand"];
-      if (r["Label"] !== undefined) {
+      if (r["Cluster"] !== undefined) {
+        r["Segment"] = r["Cluster"];
+      } else if (r["Label"] !== undefined) {
         r["Segment"] = r["Label"];
       }
     }

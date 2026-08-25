@@ -1,0 +1,11 @@
+{
+  "auto-git-push": {
+    "Stop": [
+      {
+        "type": "command",
+        "command": "powershell -ExecutionPolicy Bypass -File ./git-sync.ps1",
+        "timeout": 60
+      }
+    ]
+  }
+}

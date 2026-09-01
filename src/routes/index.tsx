@@ -16,7 +16,7 @@ export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
       { title: "Stellantis ProOne LCV Graphs" },
-      { name: "description", content: "promoCAR Mystery Shopping pricing dashboard for LCV transaction prices, monthly payments, discounts and equipment — driven by your uploaded Excel file." },
+      { name: "description", content: "promoCAR Mystery Shopping pricing dashboard for LCV transaction prices, monthly payments, cash discounts and equipment — driven by your uploaded Excel file." },
       { property: "og:title", content: "Stellantis ProOne LCV Graphs" },
       { property: "og:description", content: "Interactive LCV pricing analysis dashboard." },
     ],

@@ -55,7 +55,7 @@ export function KpiCards({ rows }: { rows: Row[] }) {
       <Kpi label="Models analysed" value={modelsCount.toLocaleString()} sub={<span className="text-muted-foreground">{rows.length.toLocaleString()} rows</span>} tone="neutral" />
       <Kpi label="Avg Transaction Price" value={fmtEur(avgTp)} />
       <Kpi label="Avg Monthly Payment" value={fmtEur(avgMp)} />
-      <Kpi label="Avg Discount" value={avgDsc === null ? "—" : `${avgDsc.toFixed(1)}%`} />
+      <Kpi label="Avg Cash Discount" value={avgDsc === null ? "—" : `${avgDsc.toFixed(1)}%`} />
       <Kpi label="Avg Equipment" value={fmtEur(avgEq)} />
       <Kpi label="Avg Competitor Gap" value={fmtPct(avgGap)} sub={<Indicator n={avgGap} cost />} tone={gapColor(avgGap, true)} />
     </div>

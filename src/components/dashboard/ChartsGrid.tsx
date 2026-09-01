@@ -69,7 +69,7 @@ export function ChartsGrid({ rows, evolutionRows }: { rows: Row[], evolutionRows
         <Card title="Transaction Price" sub="avg" empty={!tpByMake.length}>
           <ResponsiveContainer><BarChart data={tpByMake}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={70} tickFormatter={(v) => fmtEur(v)} /><RTooltip formatter={(v: number) => fmtEur(v)} /><Bar dataKey="value" radius={[6, 6, 0, 0]}>{tpByMake.map((entry, index) => <Cell key={`cell-${index}`} fill={index === tpByMake.length - 1 ? "#d4af37" : index === tpByMake.length - 2 ? "#c0c0c0" : "#4a90e2"} />)}</Bar></BarChart></ResponsiveContainer>
         </Card>
-        <Card title="Discount" sub="avg %" empty={!dscByMake.length}>
+        <Card title="Cash Discount" sub="avg %" empty={!dscByMake.length}>
           <ResponsiveContainer><BarChart data={dscByMake}><CartesianGrid strokeDasharray="3 3" vertical={false} stroke="var(--border)" /><XAxis dataKey="name" tick={{ fontSize: 11 }} /><YAxis tick={{ fontSize: 11 }} width={50} tickFormatter={(v) => `${v.toFixed(0)}%`} /><RTooltip formatter={(v: number) => `${v.toFixed(2)}%`} /><Bar dataKey="value" radius={[6, 6, 0, 0]}>{dscByMake.map((entry, index) => <Cell key={`cell-${index}`} fill={index === 0 ? "#d4af37" : index === 1 ? "#c0c0c0" : "#4a90e2"} />)}</Bar></BarChart></ResponsiveContainer>
         </Card>
         <Card title="Monthly Payment" sub="avg" empty={!mpByMake.length}>

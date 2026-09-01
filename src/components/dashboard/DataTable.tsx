@@ -25,7 +25,7 @@ const columns: ColumnDef<Row>[] = [
   { accessorKey: "monthlyPayment", header: "MP", cell: (c) => fmtEur(c.getValue<number | null>()) },
   { accessorKey: "deposit", header: "Deposit", cell: (c) => fmtEur(c.getValue<number | null>()) },
   { accessorKey: "contractMonths", header: "Months", cell: (c) => fmtNum(c.getValue<number | null>()) },
-  { accessorKey: "discount", header: "DSC %", cell: (c) => { const v = c.getValue<number | null>(); return v === null ? "—" : `${v.toFixed(1)}%`; } },
+  { accessorKey: "discount", header: "DSC CASH %", cell: (c) => { const v = c.getValue<number | null>(); return v === null ? "—" : `${v.toFixed(1)}%`; } },
   { accessorKey: "equipment", header: "Equipment", cell: (c) => fmtEur(c.getValue<number | null>()) },
   { accessorKey: "visitCode", header: "VisitCode" },
   { id: "issues", header: "Flags", accessorFn: (r) => r.issues.join("; "), cell: (c) => {
@@ -35,7 +35,7 @@ const columns: ColumnDef<Row>[] = [
 ];
 
 function exportCsv(rows: Row[]) {
-  const head = ["Market","Year","Month","Wave","Segment","Make","Model","Model Market","Fuel","Finance","Transaction Price","Monthly Payment","Deposit","Contract Months","Discount","Equipment","VisitCode","Flags"];
+  const head = ["Market","Year","Month","Wave","Segment","Make","Model","Model Market","Fuel","Finance","Transaction Price","Monthly Payment","Deposit","Contract Months","Cash Discount","Equipment","VisitCode","Flags"];
   const lines = [head.join(",")];
   for (const r of rows) {
     const cells = [r.market, r.year, r.month, r.wave, r.segment, r.make, r.model, r.modelMarket, r.fuelType, r.financeType, r.transactionPrice, r.monthlyPayment, r.deposit, r.contractMonths, r.discount, r.equipment, r.visitCode, r.issues.join("; ")];

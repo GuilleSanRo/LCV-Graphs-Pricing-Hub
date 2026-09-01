@@ -2,7 +2,7 @@ export const REQUIRED_COLUMNS = [
   "BF (Deposit)",
   "BF (months)",
   "BF (MP3 excl. costs/paid services)",
-  "DSC (%%)",
+  "DSC CASH (%%)",
   "Equipment (€)",
   "LS (Deposit)",
   "LS (months)",

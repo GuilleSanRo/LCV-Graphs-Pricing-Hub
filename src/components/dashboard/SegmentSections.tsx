@@ -272,7 +272,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
 
       <div id="section-dsc">
       <div className="mb-6 mt-12 text-center">
-        <h2 className="text-2xl font-bold text-foreground tracking-tight">Discount</h2>
+        <h2 className="text-2xl font-bold text-foreground tracking-tight">Cash Discount</h2>
       </div>
 
       {sections.map(({ segment, cards }) => (
@@ -410,7 +410,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
               <div className="mt-6 grid grid-cols-2 gap-3">
                 <Stat label="Avg Transaction Price" v={fmtEur(openCard.tp)} />
                 <Stat label="Avg Monthly Payment" v={fmtEur(openCard.mp)} />
-                <Stat label="Avg Discount" v={openCard.dsc === null ? "—" : `${openCard.dsc.toFixed(1)}%`} />
+                <Stat label="Avg Cash Discount" v={openCard.dsc === null ? "—" : `${openCard.dsc.toFixed(1)}%`} />
                 <Stat label="Avg Equipment" v={fmtEur(openCard.eq)} />
               </div>
               <div className="mt-6">

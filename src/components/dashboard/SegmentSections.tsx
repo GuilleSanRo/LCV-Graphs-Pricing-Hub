@@ -137,7 +137,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
     return Array.from(bySegment.entries())
       .sort(([a], [b]) => a.localeCompare(b))
       .map(([segment, segRows]) => {
-        const byCard = groupBy(segRows, (r) => `${r.make}__${r.modelMarket}`);
+        const byCard = groupBy(segRows, (r) => refMode === "model" ? `${r.make}__${r.model}` : `${r.make}__${r.modelMarket}`);
         const cards: CardModel[] = Array.from(byCard.entries()).map(([, rs]) => {
           const tpVals = rs.map((r) => r.transactionPrice).filter((x): x is number => x !== null);
           const dscVals = rs.map((r) => r.discount).filter((x): x is number => x !== null);
@@ -219,20 +219,20 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <div key={`tp-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
-            <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
+            <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => refMode === "model" ? c.model : c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
-              const isBase = !!segmentRef && segmentRef.make === c.make && segmentRef.key === (refMode === "modelMarket" ? c.modelMarket : c.model);
+              const cardLabel = refMode === "model" ? c.model : c.modelMarket;
+              const isBase = !!segmentRef && segmentRef.make === c.make && segmentRef.key === cardLabel;
               const gap = isBase ? null : gapPct(c.tp, refTpVal);
               return (
                 <button
-                  key={`${c.make}-${c.modelMarket}`}
+                  key={`${c.make}-${refMode === "model" ? c.model : c.modelMarket}`}
                   onClick={() => {
-                    const key = refMode === "modelMarket" ? c.modelMarket : c.model;
                     if (isBase) setReference(segment, null);
-                    else setReference(segment, { make: c.make, key });
+                    else setReference(segment, { make: c.make, key: cardLabel });
                   }}
                   onDoubleClick={() => setOpenCard(c)}
                   className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
@@ -241,7 +241,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                 >
                   <div>
                     <div className="min-w-0 text-center">
-                      <div className="truncate text-[10px] font-bold text-foreground">{c.modelMarket}</div>
+                      <div className="truncate text-[10px] font-bold text-foreground">{cardLabel}</div>
                       <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
                       {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
                     </div>
@@ -279,20 +279,21 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <div key={`dsc-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
-            <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
+            <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => refMode === "model" ? c.model : c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
+              const cardLabel = refMode === "model" ? c.model : c.modelMarket;
               return (
                 <button
-                  key={`${c.make}-${c.modelMarket}-dsc`}
+                  key={`${c.make}-${refMode === "model" ? c.model : c.modelMarket}-dsc`}
                   onClick={() => setOpenCard(c)}
                   className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)]"
                 >
                   <div>
                     <div className="min-w-0 text-center">
-                      <div className="truncate text-[10px] font-bold text-foreground">{c.modelMarket}</div>
+                      <div className="truncate text-[10px] font-bold text-foreground">{cardLabel}</div>
                       <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
                     </div>
 
@@ -322,11 +323,12 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <div key={`mp-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
-            <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => c.modelMarket)).length} models</span>
+            <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => refMode === "model" ? c.model : c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
           </div>
           <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
             {cards.map((c) => {
+              const cardLabel = refMode === "model" ? c.model : c.modelMarket;
               let rank = 3;
               if (c.mp !== null) {
                 if (c.mp === lowestMp) rank = 1;
@@ -334,13 +336,13 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
               }
               return (
                 <button
-                  key={`${c.make}-${c.modelMarket}-mp`}
+                  key={`${c.make}-${refMode === "model" ? c.model : c.modelMarket}-mp`}
                   onClick={() => setOpenCard(c)}
                   className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)]"
                 >
                   <div>
                     <div className="min-w-0 text-center">
-                      <div className="truncate text-[10px] font-bold text-foreground">{c.modelMarket}</div>
+                      <div className="truncate text-[10px] font-bold text-foreground">{cardLabel}</div>
                       <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
                     </div>
 

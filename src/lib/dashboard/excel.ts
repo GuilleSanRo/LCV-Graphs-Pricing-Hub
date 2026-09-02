@@ -96,7 +96,7 @@ export async function parseExcel(file: File): Promise<ParseResult> {
         contractMonths = lsMon;
       }
 
-      const fuelType: FuelType = model.toUpperCase().endsWith("_EV") ? "BEV" : "ICE";
+      const fuelType: FuelType = model.toUpperCase().includes("_EV") ? "BEV" : "ICE";
 
       const vc = toStr(r["VisitCode"]);
       if (vc && (seenVisit.get(vc) ?? 0) > 1) issues.push("Duplicate VisitCode");

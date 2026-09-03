@@ -74,7 +74,7 @@ function Index() {
             <span>Files are processed locally in your browser. Nothing is uploaded online.</span>
           </div>
           <div className="text-center md:absolute md:left-1/2 md:-translate-x-1/2 z-0">
-            © 2026 LCV Graphs Pricing Hub for Stellantis ProOne - by KANTAR promoCAR)
+            © 2026 LCV Graphs Pricing Hub for Stellantis ProOne - by KANTAR promoCAR
           </div>
         </div>
       </footer>

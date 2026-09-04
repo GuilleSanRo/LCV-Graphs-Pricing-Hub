@@ -17,6 +17,13 @@ function Kpi({ label, value, sub, tone }: { label: string; value: string; sub?: 
 export function KpiCards({ rows }: { rows: Row[] }) {
   const reference = useDashboard((s) => s.reference);
   const refMode = useDashboard((s) => s.refMode);
+  const filters = useDashboard((s) => s.filters);
+
+  const isUkOnly =
+    filters.markets.length > 0
+      ? filters.markets.every((m) => /(GB|UK|GBP)/i.test(m))
+      : rows.length > 0 && rows.every((r) => /(GB|UK|GBP)/i.test(r.market));
+  const currency = isUkOnly ? "GBP" : "EUR";
 
   const modelsCount = uniq(rows.map((r) => `${r.make}|${r.modelMarket}`)).length;
   const avgTp = mean(rows.map((r) => r.transactionPrice));
@@ -53,10 +60,10 @@ export function KpiCards({ rows }: { rows: Row[] }) {
   return (
     <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
       <Kpi label="Models analysed" value={modelsCount.toLocaleString()} sub={<span className="text-muted-foreground">{rows.length.toLocaleString()} rows</span>} tone="neutral" />
-      <Kpi label="Avg Transaction Price" value={fmtEur(avgTp)} />
-      <Kpi label="Avg Monthly Payment" value={fmtEur(avgMp)} />
+      <Kpi label="Avg Transaction Price" value={fmtEur(avgTp, 0, currency)} />
+      <Kpi label="Avg Monthly Payment" value={fmtEur(avgMp, 0, currency)} />
       <Kpi label="Avg Cash Discount" value={avgDsc === null ? "—" : `${avgDsc.toFixed(1)}%`} />
-      <Kpi label="Avg Equipment" value={fmtEur(avgEq)} />
+      <Kpi label="Avg Equipment" value={fmtEur(avgEq, 0, currency)} />
       <Kpi label="Avg Competitor Gap" value={fmtPct(avgGap)} sub={<Indicator n={avgGap} cost />} tone={gapColor(avgGap, true)} />
     </div>
   );

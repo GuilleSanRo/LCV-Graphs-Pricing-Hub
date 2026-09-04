@@ -8,10 +8,10 @@ export const mean = (arr: (number | null | undefined)[]): number | null => {
 
 export const uniq = <T,>(arr: T[]): T[] => Array.from(new Set(arr));
 
-export const fmtEur = (n: number | null | undefined, digits = 0) =>
+export const fmtEur = (n: number | null | undefined, digits = 0, currency = "EUR") =>
   n === null || n === undefined || !Number.isFinite(n)
     ? "—"
-    : new Intl.NumberFormat("en-EU", { style: "currency", currency: "EUR", maximumFractionDigits: digits }).format(n);
+    : new Intl.NumberFormat(currency === "GBP" ? "en-GB" : "en-EU", { style: "currency", currency, maximumFractionDigits: digits }).format(n);
 
 export const fmtNum = (n: number | null | undefined, digits = 0) =>
   n === null || n === undefined || !Number.isFinite(n)

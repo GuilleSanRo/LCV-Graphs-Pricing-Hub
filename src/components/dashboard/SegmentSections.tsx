@@ -25,6 +25,9 @@ interface CardModel {
   dsc: number | null;
   minDsc: number | null;
   maxDsc: number | null;
+  finDsc: number | null;
+  minFinDsc: number | null;
+  maxFinDsc: number | null;
   eq: number | null;
   eqMp: number | null;
 }
@@ -131,6 +134,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
   const filters = useDashboard((s) => s.filters);
   const [openCard, setOpenCard] = useState<CardModel | null>(null);
   const [isExporting, setIsExporting] = useState(false);
+  const [showFinanceDsc, setShowFinanceDsc] = useState(true);
+
+  const hasFinanceDiscount = useMemo(() => rows.some(r => r.financeDiscount !== null), [rows]);
 
   const sections = useMemo(() => {
     const bySegment = groupBy(rows, (r) => r.segment);
@@ -141,6 +147,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         const cards: CardModel[] = Array.from(byCard.entries()).map(([, rs]) => {
           const tpVals = rs.map((r) => r.transactionPrice).filter((x): x is number => x !== null);
           const dscVals = rs.map((r) => r.discount).filter((x): x is number => x !== null);
+          const finDscVals = rs.map((r) => r.financeDiscount).filter((x): x is number => x !== null);
           const mpVals = rs.map((r) => r.monthlyPayment).filter((x): x is number => x !== null);
           const eqMpVals = rs.map((r) => {
             if (r.monthlyPayment === null) return null;
@@ -162,6 +169,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             dsc: mean(dscVals),
             minDsc: dscVals.length ? Math.min(...dscVals) : null,
             maxDsc: dscVals.length ? Math.max(...dscVals) : null,
+            finDsc: mean(finDscVals),
+            minFinDsc: finDscVals.length ? Math.min(...finDscVals) : null,
+            maxFinDsc: finDscVals.length ? Math.max(...finDscVals) : null,
             eq: mean(rs.map((r) => r.equipment)),
           };
         });
@@ -313,6 +323,55 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         </div>
       ))}
       </div>
+
+      {hasFinanceDiscount && (
+        <div id="section-findsc" className={showFinanceDsc ? "" : "pdf-exclude"}>
+          <div className="mb-6 mt-12 relative flex items-center justify-center">
+            <h2 className="text-2xl font-bold text-foreground tracking-tight">Finance Discount</h2>
+            <div className="absolute right-0 flex items-center gap-2">
+              <Switch checked={showFinanceDsc} onCheckedChange={setShowFinanceDsc} />
+            </div>
+          </div>
+
+          {showFinanceDsc && sections.map(({ segment, cards }) => (
+            <div key={`findsc-${segment}`} className="mb-10">
+              <div className="mb-3 flex items-center gap-3">
+                <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
+                <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => refMode === "model" ? c.model : c.modelMarket)).length} models</span>
+                <div className="h-px flex-1 bg-border" />
+              </div>
+              <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
+                {cards.map((c) => {
+                  const cardLabel = refMode === "model" ? c.model : c.modelMarket;
+                  return (
+                    <button
+                      key={`${c.make}-${refMode === "model" ? c.model : c.modelMarket}-findsc`}
+                      onClick={() => setOpenCard(c)}
+                      className="group relative flex flex-col justify-between rounded-xl border border-border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)]"
+                    >
+                      <div>
+                        <div className="min-w-0 text-center">
+                          <div className="truncate text-[10px] font-bold text-foreground">{cardLabel}</div>
+                          <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
+                        </div>
+
+                        <MinAvgMaxBarChart min={c.minFinDsc} avg={c.finDsc} max={c.maxFinDsc} isPercent />
+                      </div>
+
+                      <span
+                        role="button"
+                        tabIndex={-1}
+                        onClick={(e) => { e.stopPropagation(); setOpenCard(c); }}
+                        className="absolute right-1 top-1 cursor-pointer text-[8px] text-muted-foreground opacity-0 transition hover:text-primary group-hover:opacity-100"
+                      >Details</span>
+                    </button>
+                  );
+                })}
+              </div>
+            </div>
+          ))}
+        </div>
+      )}
 
       <div id="section-mp">
       <div className="mb-6 mt-12 text-center">

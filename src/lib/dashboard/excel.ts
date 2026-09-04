@@ -117,6 +117,7 @@ export async function parseExcel(file: File): Promise<ParseResult> {
         deposit,
         contractMonths,
         discount: toNum(r["DSC CASH (%%)"]),
+        financeDiscount: toNum(r["DSC FINAN (%%)"]),
         equipment: toNum(r["Equipment (€)"]),
         visitCode: vc,
         currencyId: r["CurrencyID"] != null ? toStr(r["CurrencyID"]) : undefined,

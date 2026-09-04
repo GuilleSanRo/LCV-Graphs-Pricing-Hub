@@ -37,6 +37,7 @@ export interface Row {
   deposit: number | null;
   contractMonths: number | null;
   discount: number | null;
+  financeDiscount: number | null;
   equipment: number | null;
   visitCode: string;
   currencyId?: string;

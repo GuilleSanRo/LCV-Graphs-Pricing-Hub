@@ -11,12 +11,14 @@ export async function exportToPdf(filters: Filters) {
     const filterText = `Filters: Markets: ${filters.markets.join(', ') || 'All'} | Waves: ${filters.waves.join(', ') || 'All'} | Fuels: ${filters.fuels.join(', ') || 'All'} | Segments: ${filters.segments.join(', ') || 'All'}`;
 
     // 3. Elements to capture
-    const sections = [
+    const possibleSections = [
       document.getElementById("section-tp"),
       document.getElementById("section-dsc"),
+      document.getElementById("section-findsc"),
       document.getElementById("section-mp"),
       document.getElementById("section-summary"),
     ];
+    const sections = possibleSections.filter(el => el && !el.classList.contains("pdf-exclude"));
 
     // @ts-ignore
     const jsPDF = window.jspdf?.jsPDF || window.jsPDF;

@@ -32,17 +32,19 @@ interface CardModel {
   eqMp: number | null;
 }
 
-function MinAvgMaxBarChart({ min, avg, max, isPercent }: { min: number | null; avg: number | null; max: number | null; isPercent?: boolean }) {
+function MinAvgMaxBarChart({ min, avg, max, isPercent, startFrom = 0 }: { min: number | null; avg: number | null; max: number | null; isPercent?: boolean; startFrom?: number }) {
   if (min === null || avg === null || max === null) {
     return <div className="h-24 rounded bg-muted/20" />;
   }
 
   // Calculate dynamic baseline to visually emphasize differences while keeping it honest
   const range = max - min;
-  const baseline = range === 0 ? 0 : min - range * 1.5;
+  const baseline = range === 0 ? startFrom : min - range * 1.5;
+  const effectiveBaseline = Math.max(startFrom, baseline);
   const getHeight = (val: number) => {
     if (range === 0) return 50; // if min==max, show half height
-    return Math.max(15, ((val - Math.max(0, baseline)) / (max - Math.max(0, baseline))) * 100);
+    if (max <= effectiveBaseline) return 15;
+    return Math.max(15, ((val - effectiveBaseline) / (max - effectiveBaseline)) * 100);
   };
 
   const fmt = (v: number) => isPercent ? `${Math.round(v * 100)} %` : Math.round(v).toLocaleString();
@@ -256,7 +258,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                       {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
                     </div>
 
-                    <MinAvgMaxBarChart min={c.minTp} avg={c.tp} max={c.maxTp} />
+                    <MinAvgMaxBarChart min={c.minTp} avg={c.tp} max={c.maxTp} startFrom={10000} />
                   </div>
 
                   <div className="mt-2 flex flex-col items-center justify-center border-t border-border/40 pt-2 gap-1">

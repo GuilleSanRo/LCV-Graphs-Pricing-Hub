@@ -32,7 +32,7 @@ interface CardModel {
   eqMp: number | null;
 }
 
-function MinAvgMaxBarChart({ min, avg, max, isPercent, startFrom = 0 }: { min: number | null; avg: number | null; max: number | null; isPercent?: boolean; startFrom?: number }) {
+function MinAvgMaxBarChart({ min, avg, max, isPercent, startFrom = 0, onlyAvg = false }: { min: number | null; avg: number | null; max: number | null; isPercent?: boolean; startFrom?: number; onlyAvg?: boolean }) {
   if (min === null || avg === null || max === null) {
     return <div className="h-24 rounded bg-muted/20" />;
   }
@@ -48,6 +48,18 @@ function MinAvgMaxBarChart({ min, avg, max, isPercent, startFrom = 0 }: { min: n
   };
 
   const fmt = (v: number) => isPercent ? `${Math.round(v * 100)} %` : Math.round(v).toLocaleString();
+
+  if (onlyAvg) {
+    return (
+      <div className="mt-2 flex h-32 items-end justify-center px-1 pt-6 pb-2">
+        {/* Avg Bar (Transaction Price) - Only visible bar */}
+        <div className="flex h-full w-2/5 flex-col items-center justify-end">
+          <span className="mb-1 text-[8px] font-bold text-foreground">{fmt(avg)}</span>
+          <div className="w-full bg-[#4a90e2]" style={{ height: `${getHeight(avg)}%` }} />
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="mt-2 flex h-32 items-end gap-[2px] px-1 pt-6 pb-2">
@@ -137,6 +149,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
   const [openCard, setOpenCard] = useState<CardModel | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [showFinanceDsc, setShowFinanceDsc] = useState(true);
+  const [onlyAvgTp, setOnlyAvgTp] = useState(false);
 
   const hasFinanceDiscount = useMemo(() => rows.some(r => r.financeDiscount !== null), [rows]);
 
@@ -223,8 +236,11 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
       </div>
 
       <div id="section-tp">
-      <div className="mb-6 mt-4 text-center">
+      <div className="mb-6 mt-4 relative flex items-center justify-center">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Transaction Price</h2>
+        <div className="absolute right-0 flex items-center gap-2">
+          <Switch checked={onlyAvgTp} onCheckedChange={setOnlyAvgTp} />
+        </div>
       </div>
 
       {sections.map(({ segment, cards, segmentRef, refTpVal }) => (
@@ -258,7 +274,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                       {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
                     </div>
 
-                    <MinAvgMaxBarChart min={c.minTp} avg={c.tp} max={c.maxTp} startFrom={10000} />
+                    <MinAvgMaxBarChart min={c.minTp} avg={c.tp} max={c.maxTp} startFrom={10000} onlyAvg={onlyAvgTp} />
                   </div>
 
                   <div className="mt-2 flex flex-col items-center justify-center border-t border-border/40 pt-2 gap-1">

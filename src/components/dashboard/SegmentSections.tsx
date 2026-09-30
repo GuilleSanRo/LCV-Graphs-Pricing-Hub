@@ -273,7 +273,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                     <div className="min-w-0 text-center">
                       <div className="truncate text-[10px] font-bold text-foreground">{cardLabel}</div>
                       <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
-                      {isBase && <Badge className="mx-auto mt-1 flex w-fit rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
+                      <div className="mt-1 h-4 flex items-center justify-center">
+                        {isBase && <Badge className="rounded-sm bg-[#e0f2fe] text-[#0284c7] hover:bg-[#e0f2fe] border-none shadow-none uppercase text-[7px] font-bold tracking-wider px-1 py-0">DOMESTIC</Badge>}
+                      </div>
                     </div>
 
                     <MinAvgMaxBarChart min={c.minTp} avg={c.tp} max={c.maxTp} startFrom={10000} onlyAvg={onlyAvgTp} />

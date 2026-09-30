@@ -10,6 +10,7 @@ import { LineChart, Line, ResponsiveContainer, Tooltip as RTooltip, XAxis, YAxis
 import { Button } from "@/components/ui/button";
 import { Download } from "lucide-react";
 import { exportToPdf } from "@/lib/dashboard/pdfExport";
+import { exportToPpt } from "@/lib/dashboard/pptExport";
 
 interface CardModel {
   make: string;
@@ -150,6 +151,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
   const [isExporting, setIsExporting] = useState(false);
   const [showFinanceDsc, setShowFinanceDsc] = useState(true);
   const [onlyAvgTp, setOnlyAvgTp] = useState(false);
+  const [isExportingPpt, setIsExportingPpt] = useState(false);
 
   const hasFinanceDiscount = useMemo(() => rows.some(r => r.financeDiscount !== null), [rows]);
 
@@ -441,8 +443,8 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
       </div>
 
       <div className="mb-10 flex justify-between items-start">
-        {/* PDF Export Button */}
-        <div>
+        {/* Export Buttons */}
+        <div className="flex items-center gap-2">
           <Button size="sm" onClick={async () => {
             setIsExporting(true);
             try {
@@ -452,6 +454,17 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             }
           }} disabled={isExporting}>
             <Download className="mr-1.5 h-3.5 w-3.5" /> {isExporting ? "GENERATING..." : "PDF"}
+          </Button>
+
+          <Button size="sm" className="bg-[#ea580c] hover:bg-[#c2410c] text-white border-none shadow-none" onClick={async () => {
+            setIsExportingPpt(true);
+            try {
+              await exportToPpt(filters);
+            } finally {
+              setIsExportingPpt(false);
+            }
+          }} disabled={isExportingPpt}>
+            <Download className="mr-1.5 h-3.5 w-3.5" /> {isExportingPpt ? "GENERATING..." : "PPT"}
           </Button>
         </div>
 

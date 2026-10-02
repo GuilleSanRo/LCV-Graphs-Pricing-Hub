@@ -33,19 +33,19 @@ interface CardModel {
   eqMp: number | null;
 }
 
-function MinAvgMaxBarChart({ min, avg, max, isPercent, startFrom = 0, onlyAvg = false }: { min: number | null; avg: number | null; max: number | null; isPercent?: boolean; startFrom?: number; onlyAvg?: boolean }) {
+function MinAvgMaxBarChart({ min, avg, max, scaleMin, scaleMax, isPercent, onlyAvg = false }: { min: number | null; avg: number | null; max: number | null; scaleMin?: number | null; scaleMax?: number | null; isPercent?: boolean; startFrom?: number; onlyAvg?: boolean }) {
   if (min === null || avg === null || max === null) {
     return <div className="h-24 rounded bg-muted/20" />;
   }
 
-  // Calculate dynamic baseline to visually emphasize differences while keeping it honest
-  const range = max - min;
-  const baseline = range === 0 ? startFrom : min - range * 1.5;
-  const effectiveBaseline = Math.max(startFrom, baseline);
+  const sMin = scaleMin ?? min;
+  const sMax = scaleMax ?? max;
+  const range = sMax - sMin;
+
   const getHeight = (val: number) => {
-    if (range === 0) return 50; // if min==max, show half height
-    if (max <= effectiveBaseline) return 15;
-    return Math.max(15, ((val - effectiveBaseline) / (max - effectiveBaseline)) * 100);
+    if (range <= 0) return 50;
+    const pct = 15 + ((val - sMin) / range) * 85;
+    return Math.max(15, Math.min(100, pct));
   };
 
   const fmt = (v: number) => isPercent ? `${Math.round(v * 100)} %` : Math.round(v).toLocaleString();
@@ -205,6 +205,21 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
           ...cards.map(c => Math.max(c.mp || 0, c.eqMp || 0))
         );
 
+        const tpMinVals = cards.map(c => c.minTp).filter((x): x is number => x !== null);
+        const tpMaxVals = cards.map(c => c.maxTp).filter((x): x is number => x !== null);
+        const segMinTp = tpMinVals.length ? Math.min(...tpMinVals) : null;
+        const segMaxTp = tpMaxVals.length ? Math.max(...tpMaxVals) : null;
+
+        const dscMinVals = cards.map(c => c.minDsc).filter((x): x is number => x !== null);
+        const dscMaxVals = cards.map(c => c.maxDsc).filter((x): x is number => x !== null);
+        const segMinDsc = dscMinVals.length ? Math.min(...dscMinVals) : null;
+        const segMaxDsc = dscMaxVals.length ? Math.max(...dscMaxVals) : null;
+
+        const finDscMinVals = cards.map(c => c.minFinDsc).filter((x): x is number => x !== null);
+        const finDscMaxVals = cards.map(c => c.maxFinDsc).filter((x): x is number => x !== null);
+        const segMinFinDsc = finDscMinVals.length ? Math.min(...finDscMinVals) : null;
+        const segMaxFinDsc = finDscMaxVals.length ? Math.max(...finDscMaxVals) : null;
+
         const tpVals = segRows.map((r) => r.transactionPrice).filter((x): x is number => x !== null);
         const p25 = tpVals.length >= 4 ? percentile(tpVals, 0.25) : (tpVals.length ? Math.min(...tpVals) : null);
         const p75 = tpVals.length >= 4 ? percentile(tpVals, 0.75) : (tpVals.length ? Math.max(...tpVals) : null);
@@ -216,7 +231,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         const refTpVal = refRows.length ? mean(refRows.map((r) => r.transactionPrice)) : null;
         const refDscVal = refRows.length ? mean(refRows.map((r) => r.discount)) : null;
 
-        return { segment, cards, p25, p75, lowestMp, secondLowestMp, maxEqMpInSegment, segmentRef, refTpVal, refDscVal };
+        return { segment, cards, p25, p75, lowestMp, secondLowestMp, maxEqMpInSegment, segmentRef, refTpVal, refDscVal, segMinTp, segMaxTp, segMinDsc, segMaxDsc, segMinFinDsc, segMaxFinDsc };
       });
   }, [rows, references, refMode]);
 
@@ -245,7 +260,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         </div>
       </div>
 
-      {sections.map(({ segment, cards, segmentRef, refTpVal }) => (
+      {sections.map(({ segment, cards, segmentRef, refTpVal, segMinTp, segMaxTp }) => (
         <div key={`tp-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
@@ -278,7 +293,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                       </div>
                     </div>
 
-                    <MinAvgMaxBarChart min={c.minTp} avg={c.tp} max={c.maxTp} startFrom={10000} onlyAvg={onlyAvgTp} />
+                    <MinAvgMaxBarChart min={c.minTp} avg={c.tp} max={c.maxTp} scaleMin={segMinTp} scaleMax={segMaxTp} onlyAvg={onlyAvgTp} />
                   </div>
 
                   <div className="mt-2 flex flex-col items-center justify-center border-t border-border/40 pt-2 gap-1">
@@ -307,7 +322,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Cash Discount</h2>
       </div>
 
-      {sections.map(({ segment, cards }) => (
+      {sections.map(({ segment, cards, segMinDsc, segMaxDsc }) => (
         <div key={`dsc-${segment}`} className="mb-10">
           <div className="mb-3 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
@@ -329,7 +344,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                       <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
                     </div>
 
-                    <MinAvgMaxBarChart min={c.minDsc} avg={c.dsc} max={c.maxDsc} isPercent />
+                    <MinAvgMaxBarChart min={c.minDsc} avg={c.dsc} max={c.maxDsc} scaleMin={segMinDsc} scaleMax={segMaxDsc} isPercent />
                   </div>
 
                   <span
@@ -355,7 +370,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             </div>
           </div>
 
-          {showFinanceDsc && sections.map(({ segment, cards }) => (
+          {showFinanceDsc && sections.map(({ segment, cards, segMinFinDsc, segMaxFinDsc }) => (
             <div key={`findsc-${segment}`} className="mb-10">
               <div className="mb-3 flex items-center gap-3">
                 <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
@@ -377,7 +392,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                           <div className="mt-0.5 text-[8px] font-medium uppercase tracking-wider text-muted-foreground">{c.make}</div>
                         </div>
 
-                        <MinAvgMaxBarChart min={c.minFinDsc} avg={c.finDsc} max={c.maxFinDsc} isPercent />
+                        <MinAvgMaxBarChart min={c.minFinDsc} avg={c.finDsc} max={c.maxFinDsc} scaleMin={segMinFinDsc} scaleMax={segMaxFinDsc} isPercent />
                       </div>
 
                       <span

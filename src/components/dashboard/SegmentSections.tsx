@@ -56,7 +56,7 @@ function MinAvgMaxBarChart({ min, avg, max, scaleMin, scaleMax, isPercent, onlyA
         {/* Avg Bar (Transaction Price) - Only visible bar */}
         <div className="flex h-full w-2/5 flex-col items-center justify-end">
           <span className="mb-1 text-[8px] font-bold text-foreground">{fmt(avg)}</span>
-          <div className="w-full bg-[#4a90e2]" style={{ height: `${getHeight(avg)}%` }} />
+          <div className="w-full border border-[#4a90e2] bg-[#4a90e2]" style={{ height: `${getHeight(avg)}%` }} />
         </div>
       </div>
     );
@@ -72,7 +72,7 @@ function MinAvgMaxBarChart({ min, avg, max, scaleMin, scaleMax, isPercent, onlyA
       {/* Avg Bar (Transaction Price) */}
       <div className="flex h-full flex-1 flex-col items-center justify-end">
         <span className="mb-1 text-[8px] font-bold text-foreground">{fmt(avg)}</span>
-        <div className="w-full bg-[#4a90e2]" style={{ height: `${getHeight(avg)}%` }} />
+        <div className="w-full border border-[#4a90e2] bg-[#4a90e2]" style={{ height: `${getHeight(avg)}%` }} />
       </div>
       {/* Max Bar */}
       <div className="flex h-full flex-1 flex-col items-center justify-end">

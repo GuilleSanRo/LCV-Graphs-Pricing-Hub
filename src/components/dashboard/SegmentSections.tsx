@@ -52,10 +52,10 @@ function MinAvgMaxBarChart({ min, avg, max, scaleMin, scaleMax, isPercent, onlyA
 
   if (onlyAvg) {
     return (
-      <div className="mt-2 flex h-32 items-end justify-center px-1 pt-6 pb-2">
+      <div className="mt-2 flex h-32 items-end justify-center px-0.5 pt-6 pb-2">
         {/* Avg Bar (Transaction Price) - Only visible bar */}
-        <div className="flex h-full w-2/5 flex-col items-center justify-end">
-          <span className="mb-1 text-[8px] font-bold text-foreground">{fmt(avg)}</span>
+        <div className="flex h-full w-3/4 flex-col items-center justify-end">
+          <span className="mb-1 text-[10px] font-bold text-foreground leading-none">{fmt(avg)}</span>
           <div className="w-full border border-[#4a90e2] bg-[#4a90e2]" style={{ height: `${getHeight(avg)}%` }} />
         </div>
       </div>
@@ -267,7 +267,9 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
             <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => refMode === "model" ? c.model : c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
           </div>
-          <div className="grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10">
+          <div className={onlyAvgTp 
+            ? "grid grid-cols-3 gap-1 sm:grid-cols-4 md:grid-cols-6 lg:grid-cols-8 xl:grid-cols-12 2xl:grid-cols-14" 
+            : "grid grid-cols-2 gap-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-10"}>
             {cards.map((c) => {
               const cardLabel = refMode === "model" ? c.model : c.modelMarket;
               const isBase = !!segmentRef && segmentRef.make === c.make && segmentRef.key === cardLabel;
@@ -280,7 +282,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
                     else setReference(segment, { make: c.make, key: cardLabel });
                   }}
                   onDoubleClick={() => setOpenCard(c)}
-                  className={`group relative flex flex-col justify-between rounded-xl border bg-card p-2 text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
+                  className={`group relative flex flex-col justify-between rounded-xl border bg-card ${onlyAvgTp ? "p-1.5" : "p-2"} text-center shadow-[0_2px_8px_rgba(16,24,40,0.04)] transition hover:-translate-y-0.5 hover:shadow-[0_8px_16px_rgba(16,24,40,0.08)] ${
                     isBase ? "border-[#60a5fa] ring-1 ring-[#60a5fa]" : "border-border"
                   }`}
                 >

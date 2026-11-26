@@ -253,7 +253,7 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
       </div>
 
       <div id="section-tp">
-      <div className="mb-6 mt-4 relative flex items-center justify-center">
+      <div className="mb-4 mt-2 relative flex items-center justify-center">
         <h2 className="text-2xl font-bold text-foreground tracking-tight">Transaction Price</h2>
         <div className="absolute right-0 flex items-center gap-2">
           <Switch checked={onlyAvgTp} onCheckedChange={setOnlyAvgTp} />
@@ -261,8 +261,8 @@ export function SegmentSections({ rows }: { rows: Row[] }) {
       </div>
 
       {sections.map(({ segment, cards, segmentRef, refTpVal, segMinTp, segMaxTp }) => (
-        <div key={`tp-${segment}`} className="mb-10">
-          <div className="mb-3 flex items-center gap-3">
+        <div key={`tp-${segment}`} className="mb-6">
+          <div className="mb-2 flex items-center gap-3">
             <h3 className="text-sm font-bold uppercase tracking-wider text-foreground">{segment}</h3>
             <span className="text-xs text-muted-foreground">{uniq(cards.map((c) => refMode === "model" ? c.model : c.modelMarket)).length} models</span>
             <div className="h-px flex-1 bg-border" />
